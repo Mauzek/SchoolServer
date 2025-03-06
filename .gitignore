@@ -1,0 +1,52 @@
+# Основные файлы Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Файлы окружения
+.env
+.env.local
+.env.*.local
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.temp
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# База данных
+*.sqlite
+*.db
+*.sqlitedb
+
+# Папки сборки
+dist/
+build/
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Тестовые файлы
+coverage/
+
+# Секреты и ключи
+*.key
+*.pem
+*.crt
+
+# Локальные конфигурации
+config/local.*
+database/local.*
+
+# Файлы операционной системы
+*.swp
+*~
