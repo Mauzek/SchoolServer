@@ -36,6 +36,16 @@ app.get("/", (req, res) => {
   res.send("Сервер образовательной системы v1.0");
 });
 
+
+app.get('/grades', async (req, res) => {
+  try {
+    const grades = await Grade.findAll();
+    res.json(grades);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // API маршруты
 app.use("/api/v1", apiRouter);
 
@@ -87,5 +97,8 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+
+
 
 startServer();

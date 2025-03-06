@@ -1,38 +1,47 @@
-// models/TestingAnswer.js
 const { Model, DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db');
 
 class TestingAnswer extends Model {}
-TestingAnswer.init({
-  id_testing_answer: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  id_student: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'students',
-      key: 'id_student',
+TestingAnswer.init(
+  {
+    id_testing_answer: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    id_student: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'students',
+        key: 'id_student',
+      },
+    },
+    id_testing: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'testings',
+        key: 'id_testing',
+      },
+    },
+    grade: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    submission_date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    file_link: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
-  grade: {
-    type: DataTypes.FLOAT,
-    allowNull: true,
-  },
-  submission_date: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  file_link: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-}, {
-  sequelize,
-  modelName: 'TestingAnswer',
-  tableName: 'testing_answers',
-  timestamps: false,
-});
+  {
+    sequelize,
+    modelName: 'TestingAnswer',
+    tableName: 'testing_answers',
+    timestamps: false,
+  }
+);
 
 module.exports = TestingAnswer;
