@@ -1,9 +1,12 @@
 const express = require("express");
-const { register, login } = require("../controllers/authController");
+const { login, register, refreshAccessToken } = require("../controllers");
 const router = express.Router();
 
 // Регистрация
 router.post("/register", register);
+
+// Обновление токена
+router.post("/refreshToken", refreshAccessToken);
 
 // Логин
 router.post("/login", login);

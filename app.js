@@ -5,20 +5,6 @@ const cors = require("cors");
 const morgan = require("morgan");
 const apiRouter = require("./routers/apiRouter");
 const { sequelize, connectDB } = require("./database/db");
-const { 
-  User, 
-  Role, 
-  Parent, 
-  Student,
-  Employee,
-  Position,
-  Class,
-  Subject,
-  Schedule,
-  Grade,
-  Assignment,
-  Testing
-} = require("./models");
 
 const app = express();
 
@@ -30,21 +16,6 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(morgan("combined"));
-
-// Главная страница
-app.get("/", (req, res) => {
-  res.send("Сервер образовательной системы v1.0");
-});
-
-
-app.get('/grades', async (req, res) => {
-  try {
-    const grades = await Grade.findAll();
-    res.json(grades);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // API маршруты
 app.use("/api/v1", apiRouter);

@@ -1,52 +1,18 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-
-// Регистрация пользователя
-const register = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    // Проверка, существует ли уже такой пользователь
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
-      return res.status(400).json({ message: "Пользователь с таким логином уже существует" });
-    }
-
-    // Хеширование пароля
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Создание нового пользователя
-    const user = await User.create({
-      username,
-      password: hashedPassword,
-    });
-
-    // Генерация токена JWT
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);  // Логируем секретный ключ
-    const accessToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
-      expiresIn: "1h", // Токен будет действителен 1 час
-    });
-
-    // Генерация refresh токена
-    const refreshToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_REFRESH_SECRET, // Это будет другой секрет для рефреш токена
-        { expiresIn: "7d" } // Срок жизни refresh token — 7 дней
-      );
-
-    res.status(201).json({ message: "Пользователь успешно зарегистрирован", accessToken, refreshToken });
-  } catch (error) {
-    console.error("Ошибка при создании пользователя:", error);  // Логируем ошибку
-    res.status(500).json({ message: "Ошибка сервера", error: error.message });  // Добавляем подробности ошибки
-  }
-};
+const { createEmployee } = require("./employeeController");
+const { createParent } = require("./parentController");
+const { createStudent } = require("./studentController");
+const { Role, Student, Employee, Parent, StudentParent, Class } = require("../models");
 
 // Логин пользователя
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { login, password } = req.body;
 
     // Поиск пользователя по логину
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { login } });
     if (!user) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
@@ -58,17 +24,80 @@ const login = async (req, res) => {
     }
 
     // Генерация токена JWT
-    const accessToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      { id: user.id_user, username: user.login, role: user.id_role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d", }
+    );
 
     // Генерация refresh токена
-    const refreshToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_REFRESH_SECRET, // Это будет другой секрет для рефреш токена
-        { expiresIn: "7d" } // Срок жизни refresh token — 7 дней
-      );
-    
+    const refreshToken = jwt.sign(
+      { id: user.id_user, username: user.login, role: user.id_role },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.json({ message: "Успешный вход", accessToken, refreshToken });
+    // Извлечение имени роли по id_role
+    const role = await Role.findByPk(user.id_role);
+    const roleName = role ? role.name : null;
+
+    // Извлечение дополнительной информации в зависимости от роли
+    let additionalInfo = {};
+    switch (user.id_role) {
+      case 4: // Parent
+        const parent = await Parent.findOne({ where: { id_user: user.id_user } });
+        if (parent) {
+          const studentParentRecords = await StudentParent.findAll({
+            where: { id_parent: parent.id_parent },
+            attributes: ['id_student']
+          });
+          const childrenIds = studentParentRecords.map(record => record.id_student);
+          additionalInfo = {
+            parentId: parent.id_parent,
+            childrenIds: childrenIds
+          };
+        }
+        break;
+      case 3: // Student
+        const student = await Student.findOne({ where: { id_user: user.id_user } });
+        const studClass = await Class.findOne({ where: { id_class: student.id_class } });
+        if (student) {
+          additionalInfo = {
+            idClass: student.id_class,
+            name: studClass.class_number + studClass.class_letter,
+          };
+        }
+        break;
+      case 2: // Employee
+        const employee = await Employee.findOne({ where: { id_user: user.id_user } });
+        if (employee) {
+          additionalInfo = {
+            position: employee.id_position
+          };
+        }
+        break;
+      default:
+        break;
+    }
+
+    res.json({
+      message: "Успешный вход",
+      user: {
+        id: user.id_user,
+        email: user.email,
+        role: {
+          idRole: user.id_role,
+          name: roleName,
+        },
+        firstName: user.first_name,
+        lastName: user.last_name,
+        middleName: user.middle_name,
+        photo: user.photo,
+        ...additionalInfo
+      },
+      accessToken,
+      refreshToken
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Ошибка сервера" });
@@ -76,29 +105,53 @@ const login = async (req, res) => {
 };
 
 const refreshAccessToken = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-  
-    if (!refreshToken) {
-      return res.status(403).json({ message: 'Refresh token отсутствует.' });
-    }
-  
-    // Проверяем рефреш-токен
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, user) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(403).json({ message: "Refresh token отсутствует." });
+  }
+
+  // Проверяем рефреш-токен
+  jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_SECRET,
+    async (err, user) => {
       if (err) {
-        return res.status(403).json({ message: 'Refresh token недействителен.' });
+        return res
+          .status(403)
+          .json({ message: "Refresh token недействителен." });
       }
-  
+
       // Если refresh токен валиден, создаем новый access token
       const newAccessToken = jwt.sign(
         { id: user.id, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: "1d" }
       );
-  
-      // Отправляем новый access token клиенту
-      res.cookie('jwt', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-      res.json({ accessToken: newAccessToken });
-    });
-  };
 
-module.exports = { register, login, refreshAccessToken };
+      // Отправляем новый access token клиенту
+      res.json({ message: "Токен обновлён", accessToken: newAccessToken });
+    }
+  );
+};
+
+const register = async (req, res) => {
+  const { role } = req.query;
+
+  if (!role) {
+    return res.status(400).json({ message: "Role is required" });
+  }
+
+  switch (role) {
+    case "parent":
+      return createParent(req, res);
+    case "student":
+      return createStudent(req, res);
+    case "employee":
+      return createEmployee(req, res);
+    default:
+      return res.status(400).json({ message: "Invalid role" });
+  }
+};
+
+module.exports = { login, refreshAccessToken, register };
