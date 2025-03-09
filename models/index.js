@@ -34,10 +34,13 @@ User.hasOne(Employee, { foreignKey: 'id_user' });
 Employee.belongsTo(User, { foreignKey: 'id_user' });
 
 // Ассоциации для Parent
-Parent.belongsToMany(Student, { through: StudentParent, foreignKey: 'id_parent' });
-Student.belongsToMany(Parent, { through: StudentParent, foreignKey: 'id_student' });
+Parent.hasMany(StudentParent, { foreignKey: 'id_parent' });
+StudentParent.belongsTo(Parent, { foreignKey: 'id_parent' });
 
 // Ассоциации для Student
+Student.hasMany(StudentParent, { foreignKey: 'id_student' });
+StudentParent.belongsTo(Student, { foreignKey: 'id_student' });
+
 Student.belongsTo(Class, { foreignKey: 'id_class' });
 Class.hasMany(Student, { foreignKey: 'id_class' });
 

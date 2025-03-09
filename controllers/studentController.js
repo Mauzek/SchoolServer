@@ -1,4 +1,4 @@
-const { User, Student, Role, sequelize } = require("../models");
+const { User, Student, Role, Class, Parent, StudentParent, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
@@ -60,7 +60,7 @@ const createStudent = async (req, res) => {
         email,
         password: hashedPassword,
         first_name: firstName,
-        last_name : lastName,
+        last_name: lastName,
         middle_name: middleName,
         gender,
         login,
@@ -74,7 +74,7 @@ const createStudent = async (req, res) => {
     const student = await Student.create(
       {
         id_user: user.id_user,
-        id_class : idClass,
+        id_class: idClass,
         phone,
         birth_date: birthDate,
         document_number: documentNumber,
@@ -128,6 +128,185 @@ const createStudent = async (req, res) => {
   }
 };
 
+const getStudents = async (req, res) => {
+  try {
+    const students = await Student.findAll({
+      include: {
+        model: User,
+        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+      },
+    });
+
+    const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
+      const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
+      const parentRecords = await StudentParent.findAll({
+        where: { id_student: student.id_student },
+        include: {
+          model: Parent,
+          include: {
+            model: User,
+            attributes: ["first_name", "last_name", "middle_name"]
+          }
+        }
+      });
+
+      const parents = parentRecords.map(record => ({
+        id_parent: record.Parent.id_parent,
+        firstName: record.Parent.User.first_name,
+        lastName: record.Parent.User.last_name,
+        middleName: record.Parent.User.middle_name
+      }));
+
+      return {
+        id_student: student.id_student,
+        id_user: student.id_user,
+        id_class: student.id_class,
+        className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+        phone: student.phone,
+        birth_date: student.birth_date,
+        document_number: student.document_number,
+        blood_group: student.blood_group,
+        firstName: student.User.first_name,
+        lastName: student.User.last_name,
+        middleName: student.User.middle_name,
+        login: student.User.login,
+        email: student.User.email,
+        gender: student.User.gender,
+        photo: student.User.photo,
+        parents: parents
+      };
+    }));
+
+    res.json(studentsWithClassInfo);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+const getStudentsByClass = async (req, res) => {
+  const { idClass } = req.params;
+
+  try {
+    const students = await Student.findAll({
+      where: { id_class: idClass },
+      include: {
+        model: User,
+        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+      },
+    });
+
+    const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
+      const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
+      const parentRecords = await StudentParent.findAll({
+        where: { id_student: student.id_student },
+        include: {
+          model: Parent,
+          include: {
+            model: User,
+            attributes: ["first_name", "last_name", "middle_name"]
+          }
+        }
+      });
+
+      const parents = parentRecords.map(record => ({
+        id_parent: record.Parent.id_parent,
+        firstName: record.Parent.User.first_name,
+        lastName: record.Parent.User.last_name,
+        middleName: record.Parent.User.middle_name
+      }));
+
+      return {
+        id_student: student.id_student,
+        id_user: student.id_user,
+        id_class: student.id_class,
+        className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+        phone: student.phone,
+        birth_date: student.birth_date,
+        document_number: student.document_number,
+        blood_group: student.blood_group,
+        firstName: student.User.first_name,
+        lastName: student.User.last_name,
+        middleName: student.User.middle_name,
+        login: student.User.login,
+        email: student.User.email,
+        gender: student.User.gender,
+        photo: student.User.photo,
+        parents: parents
+      };
+    }));
+
+    res.json(studentsWithClassInfo);
+  } catch (error) {
+    console.error("Error fetching students by class:", error);
+    res.status(500).json({ message: "Ошибка сервера", error: error.message });
+  }
+};
+
+const getStudentById = async (req, res) => {
+  const { idStudent } = req.params;
+
+  try {
+    const student = await Student.findOne({
+      where: { id_student: idStudent },
+      include: {
+        model: User,
+        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+      },
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Студент не найден" });
+    }
+
+    const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
+    const parentRecords = await StudentParent.findAll({
+      where: { id_student: student.id_student },
+      include: {
+        model: Parent,
+        include: {
+          model: User,
+          attributes: ["first_name", "last_name", "middle_name"]
+        }
+      }
+    });
+
+    const parents = parentRecords.map(record => ({
+      id_parent: record.Parent.id_parent,
+      firstName: record.Parent.User.first_name,
+      lastName: record.Parent.User.last_name,
+      middleName: record.Parent.User.middle_name
+    }));
+
+    const studentWithClassInfo = {
+      id_student: student.id_student,
+      id_user: student.id_user,
+      id_class: student.id_class,
+      className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+      phone: student.phone,
+      birth_date: student.birth_date,
+      document_number: student.document_number,
+      blood_group: student.blood_group,
+      firstName: student.User.first_name,
+      lastName: student.User.last_name,
+      middleName: student.User.middle_name,
+      login: student.User.login,
+      email: student.User.email,
+      gender: student.User.gender,
+      photo: student.User.photo,
+      parents: parents
+    };
+
+    res.json(studentWithClassInfo);
+  } catch (error) {
+    console.error("Error fetching student by ID:", error);
+    res.status(500).json({ message: "Ошибка сервера", error: error.message });
+  }
+};
+
 module.exports = {
   createStudent,
+  getStudents,
+  getStudentsByClass,
+  getStudentById,
 };
