@@ -2,6 +2,7 @@ const { User, Student, Role, Class, Parent, StudentParent, sequelize } = require
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const { sendEmail } = require("../utils/email");
 
 const createStudent = async (req, res) => {
   const transaction = await sequelize.transaction(); // Открываем транзакцию
@@ -83,31 +84,26 @@ const createStudent = async (req, res) => {
       { transaction }
     );
 
+    // Отправка письма с логином и паролем
+    const emailText = `Здравствуйте, ${firstName} ${lastName}!\n\nВаши данные для входа в систему:\nЛогин: ${login}\nПароль: ${password}\n\nС уважением,\nАдминистрация школы`;
+    await sendEmail(email, 'Регистрация в системе', emailText);
+
     // Фиксируем изменения в базе
     await transaction.commit();
 
-    // Создание JWT-токенов
-    const accessToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
-    );
-
     const role = await Role.findByPk(user.id_role);
     const roleName = role ? role.name : null;
+
+    const classInfo = await Class.findByPk(student.id_class);
 
     return res.json({
       message: "Student created successfully",
       user: {
         id: user.id_user,
         email: user.email,
+        login: user.login,
         idClass: student.id_class,
+        className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
         role: {
           id_role: user.id_role,
           name: roleName,
@@ -117,8 +113,6 @@ const createStudent = async (req, res) => {
         middleName: user.middle_name,
         photo: user.photo,
       },
-      accessToken,
-      refreshToken,
     });
   } catch (e) {
     if (!transaction.finished) {
@@ -131,14 +125,19 @@ const createStudent = async (req, res) => {
 const getStudents = async (req, res) => {
   try {
     const students = await Student.findAll({
-      include: {
-        model: User,
-        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
-      },
+      include: [
+        {
+          model: User,
+          attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+        },
+        {
+          model: Class,
+          attributes: ["class_number", "class_letter"],
+        },
+      ],
     });
 
     const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
-      const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
       const parentRecords = await StudentParent.findAll({
         where: { id_student: student.id_student },
         include: {
@@ -161,7 +160,7 @@ const getStudents = async (req, res) => {
         id_student: student.id_student,
         id_user: student.id_user,
         id_class: student.id_class,
-        className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+        className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
         phone: student.phone,
         birth_date: student.birth_date,
         document_number: student.document_number,
@@ -190,14 +189,19 @@ const getStudentsByClass = async (req, res) => {
   try {
     const students = await Student.findAll({
       where: { id_class: idClass },
-      include: {
-        model: User,
-        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
-      },
+      include: [
+        {
+          model: User,
+          attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+        },
+        {
+          model: Class,
+          attributes: ["class_number", "class_letter"],
+        },
+      ],
     });
 
     const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
-      const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
       const parentRecords = await StudentParent.findAll({
         where: { id_student: student.id_student },
         include: {
@@ -220,7 +224,7 @@ const getStudentsByClass = async (req, res) => {
         id_student: student.id_student,
         id_user: student.id_user,
         id_class: student.id_class,
-        className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+        className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
         phone: student.phone,
         birth_date: student.birth_date,
         document_number: student.document_number,
@@ -249,17 +253,22 @@ const getStudentById = async (req, res) => {
   try {
     const student = await Student.findOne({
       where: { id_student: idStudent },
-      include: {
-        model: User,
-        attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
-      },
+      include: [
+        {
+          model: User,
+          attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+        },
+        {
+          model: Class,
+          attributes: ["class_number", "class_letter"],
+        },
+      ],
     });
 
     if (!student) {
       return res.status(404).json({ message: "Студент не найден" });
     }
 
-    const classInfo = await Class.findOne({ where: { id_class: student.id_class } });
     const parentRecords = await StudentParent.findAll({
       where: { id_student: student.id_student },
       include: {
@@ -282,7 +291,7 @@ const getStudentById = async (req, res) => {
       id_student: student.id_student,
       id_user: student.id_user,
       id_class: student.id_class,
-      className: classInfo ? `${classInfo.class_number}${classInfo.class_letter}` : null,
+      className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
       phone: student.phone,
       birth_date: student.birth_date,
       document_number: student.document_number,

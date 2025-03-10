@@ -1,7 +1,8 @@
 const { User, Employee, Role, Position, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
+const { sendEmail } = require("../utils/email");
 
 const createEmployee = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -9,51 +10,49 @@ const createEmployee = async (req, res) => {
     const {
       email,
       password,
-      first_name,
-      last_name,
-      middle_name,
+      firstName,
+      lastName,
+      middleName,
       gender,
       login,
-      id_role,
-      id_position,
-      marital_status,
-      birth_date,
+      idRole,
+      idPosition,
+      maritalStatus,
+      birthDate,
       phone,
-      is_staff,
-      passport_series,
-      passport_number,
-      work_book_number,
-      registration_address,
-      work_experience,
-      hire_date,
+      isStaff,
+      passportSeries,
+      passportNumber,
+      workBookNumber,
+      registrationAddress,
+      workExperience,
+      hireDate,
     } = req.body;
 
     // Проверка наличия обязательных полей
     if (
       !email ||
       !password ||
-      !first_name ||
-      !last_name ||
+      !firstName ||
+      !lastName ||
       !gender ||
       !login ||
-      !id_role ||
+      !idRole ||
       !phone ||
-      !passport_series ||
-      !passport_number ||
-      !registration_address ||
-      !work_experience ||
-      !hire_date ||
-      !id_position
+      !passportSeries ||
+      !passportNumber ||
+      !registrationAddress ||
+      !workExperience ||
+      !hireDate ||
+      !idPosition
     ) {
       console.log("Missing required fields");
-      return res
-        .status(400)
-        .json({ message: "All required fields must be filled" });
+      return res.status(400).json({ message: "All required fields must be filled" });
     }
 
     // Проверка уникальности email и логина
     const existingUser = await User.findOne({
-      where: { [Sequelize.Op.or]: [{ email }, { login }] },
+      where: { [Op.or]: [{ email }, { login }] },
       transaction,
     });
     if (existingUser) {
@@ -68,12 +67,12 @@ const createEmployee = async (req, res) => {
       {
         email,
         password: hashedPassword,
-        first_name,
-        last_name,
-        middle_name,
+        first_name: firstName,
+        last_name: lastName,
+        middle_name: middleName,
         gender,
         login,
-        id_role,
+        id_role: idRole,
       },
       { transaction }
     );
@@ -84,37 +83,27 @@ const createEmployee = async (req, res) => {
     const employee = await Employee.create(
       {
         id_user: user.id_user,
-        id_position,
-        marital_status,
-        birth_date,
+        id_position: idPosition,
+        marital_status: maritalStatus,
+        birth_date: birthDate,
         phone,
-        is_staff,
-        passport_series,
-        passport_number,
-        work_book_number,
-        registration_address,
-        work_experience,
-        hire_date,
+        is_staff: isStaff,
+        passport_series: passportSeries,
+        passport_number: passportNumber,
+        work_book_number: workBookNumber,
+        registration_address: registrationAddress,
+        work_experience: workExperience,
+        hire_date: hireDate,
       },
       { transaction }
     );
 
-    console.log("Employee created:", employee);
+    // Отправка письма с логином и паролем
+    const emailText = `Здравствуйте, ${firstName} ${lastName}!\n\nВаши данные для входа в систему:\nЛогин: ${login}\nПароль: ${password}\n\nС уважением,\nАдминистрация школы`;
+    await sendEmail(email, 'Регистрация в системе', emailText);
 
     // Подтверждение транзакции
     await transaction.commit();
-
-    // Генерация токенов
-    const accessToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-    const refreshToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
-    );
 
     // Извлечение имени роли по id_role
     const role = await Role.findByPk(user.id_role);
@@ -131,19 +120,18 @@ const createEmployee = async (req, res) => {
         email: user.email,
         login: user.login,
         position: {
-          id_position: employee.id_position,
+          idPosition: employee.id_position,
           name: positionName,
         },
         role: {
-          id_role: user.id_role,
+          idRole: user.id_role,
           name: roleName,
         },
         firstName: user.first_name,
         lastName: user.last_name,
+        middleName: user.middle_name,
         photo: user.photo,
       },
-      accessToken,
-      refreshToken,
     });
   } catch (error) {
     if (!transaction.finished) {
@@ -159,9 +147,7 @@ const createEmployee = async (req, res) => {
       });
     }
 
-    return res
-      .status(500)
-      .json({ message: "Error creating user", error: error.message });
+    return res.status(500).json({ message: "Error creating user", error: error.message });
   }
 };
 
