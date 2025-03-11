@@ -1,6 +1,5 @@
 const { User, Employee, Role, Position, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const { sendEmail } = require("../utils/email");
 

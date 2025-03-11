@@ -1,10 +1,10 @@
 const express = require("express");
-const { getStudents, getStudentsByClass, getStudentById } = require("../controllers");
+const { getAllStudents, getStudentsByClass, getStudentById } = require("../controllers");
 const { authenticate } = require("../middleware/authMiddleware");
 const router = express.Router();
 
 // Получение всех студентов
-router.get("/", authenticate, getStudents);
+router.get("/", authenticate, getAllStudents);
 
 // Получение студентов по классу
 // Параметр :idClass - идентификатор класса

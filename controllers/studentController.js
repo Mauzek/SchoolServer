@@ -1,6 +1,5 @@
 const { User, Student, Role, Class, Parent, StudentParent, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const { sendEmail } = require("../utils/email");
 
@@ -122,7 +121,7 @@ const createStudent = async (req, res) => {
   }
 };
 
-const getStudents = async (req, res) => {
+const getAllStudents = async (req, res) => {
   try {
     const students = await Student.findAll({
       include: [
@@ -313,9 +312,11 @@ const getStudentById = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   createStudent,
-  getStudents,
+  getAllStudents,
   getStudentsByClass,
   getStudentById,
 };
