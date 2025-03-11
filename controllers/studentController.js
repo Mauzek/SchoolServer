@@ -312,11 +312,136 @@ const getStudentById = async (req, res) => {
   }
 };
 
+const updateStudent = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { idStudent } = req.params;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      middleName,
+      gender,
+      login,
+      idRole,
+      idClass,
+      phone,
+      birthDate,
+      documentNumber,
+      bloodGroup,
+      photo,
+    } = req.body;
 
+    // Проверка обязательных полей
+    if (
+      !idStudent ||
+      !email ||
+      !firstName ||
+      !lastName ||
+      !gender ||
+      !login ||
+      !idRole ||
+      !idClass ||
+      !phone ||
+      !birthDate ||
+      !documentNumber ||
+      !bloodGroup
+    ) {
+      return res.status(400).json({ message: "All required fields must be filled" });
+    }
+
+    // Проверка существования студента
+    const student = await Student.findByPk(idStudent, { transaction });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Обновление пользователя
+    const user = await User.findByPk(student.id_user, { transaction });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.email = email;
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+    user.first_name = firstName;
+    user.last_name = lastName;
+    user.middle_name = middleName;
+    user.gender = gender;
+    user.login = login;
+    user.id_role = idRole;
+    user.photo = photo;
+    await user.save({ transaction });
+
+    // Обновление студента
+    student.id_class = idClass;
+    student.phone = phone;
+    student.birth_date = birthDate;
+    student.document_number = documentNumber;
+    student.blood_group = bloodGroup;
+    await student.save({ transaction });
+
+    // Подтверждение транзакции
+    await transaction.commit();
+
+    return res.status(200).json({ message: "Student updated successfully" });
+  } catch (error) {
+    if (!transaction.finished) {
+      await transaction.rollback(); // Откат транзакции в случае ошибки
+    }
+
+    console.error("Error updating student:", error);
+
+    return res.status(500).json({ message: "Error updating student", error: error.message });
+  }
+};
+
+const deleteStudent = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { idStudent } = req.params;
+
+    // Проверка существования студента
+    const student = await Student.findByPk(idStudent, { transaction });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Удаление связей студента с родителями
+    await StudentParent.destroy({ where: { id_student: student.id_student }, transaction });
+
+    // Удаление студента
+    await student.destroy({ transaction });
+
+    // Удаление пользователя
+    const user = await User.findByPk(student.id_user, { transaction });
+    if (user) {
+      await user.destroy({ transaction });
+    }
+
+    // Подтверждение транзакции
+    await transaction.commit();
+
+    return res.status(200).json({ message: "Student deleted successfully" });
+  } catch (error) {
+    if (!transaction.finished) {
+      await transaction.rollback(); // Откат транзакции в случае ошибки
+    }
+
+    console.error("Error deleting student:", error);
+
+    return res.status(500).json({ message: "Error deleting student", error: error.message });
+  }
+};
 
 module.exports = {
   createStudent,
   getAllStudents,
   getStudentsByClass,
   getStudentById,
+  updateStudent,
+  deleteStudent,
 };
