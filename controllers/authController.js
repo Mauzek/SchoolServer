@@ -23,20 +23,6 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Неверный пароль" });
     }
 
-    // Генерация токена JWT
-    const accessToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d", }
-    );
-
-    // Генерация refresh токена
-    const refreshToken = jwt.sign(
-      { id: user.id_user, username: user.login, role: user.id_role },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
-    );
-
     // Извлечение имени роли по id_role
     const role = await Role.findByPk(user.id_role);
     const roleName = role ? role.name : null;
@@ -70,6 +56,9 @@ const login = async (req, res) => {
         break;
       case 2: // Employee
         const employee = await Employee.findOne({ where: { id_user: user.id_user } });
+        if (employee && !employee.is_staff) {
+          return res.status(403).json({ message: "Сотрудник уволен" });
+        }
         if (employee) {
           additionalInfo = {
             position: employee.id_position
@@ -79,6 +68,20 @@ const login = async (req, res) => {
       default:
         break;
     }
+
+    // Генерация токена JWT
+    const accessToken = jwt.sign(
+      { id: user.id_user, username: user.login, role: user.id_role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // Генерация refresh токена
+    const refreshToken = jwt.sign(
+      { id: user.id_user, username: user.login, role: user.id_role },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({
       message: "Успешный вход",
