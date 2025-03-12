@@ -1,6 +1,6 @@
 const express = require("express");
 const { getEmployeeById, getAllEmployees, updateEmployee, deleteEmployee } = require("../controllers");
-const { authenticate } = require("../middleware/authMiddleware");
+const { authenticate } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех сотрудников

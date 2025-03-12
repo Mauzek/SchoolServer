@@ -6,7 +6,7 @@ const {
   updateStudent,
   deleteStudent,
 } = require("../controllers");
-const { authenticate } = require("../middleware/authMiddleware");
+const { authenticate } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех студентов

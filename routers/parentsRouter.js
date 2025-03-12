@@ -1,6 +1,11 @@
 const express = require("express");
-const { getAllParents, getParentById, deleteParent, updateParent } = require("../controllers");
-const { authenticate } = require("../middleware/authMiddleware");
+const {
+  getAllParents,
+  getParentById,
+  deleteParent,
+  updateParent,
+} = require("../controllers");
+const { authenticate } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех сотрудников

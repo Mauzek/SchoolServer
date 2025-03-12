@@ -9,6 +9,7 @@ const {
   deleteGrade,
 } = require("./gradeController");
 const { getAllParents, getParentById, deleteParent, updateParent } = require("./parentController");
+const { getAllRoles, getRoleById, deleteRole, updateRole, createRole } = require("./roleController");
 const { getAllStudents, getStudentsByClass, getStudentById, updateStudent, deleteStudent } = require("./studentController");
 
 module.exports = {
@@ -42,5 +43,12 @@ module.exports = {
   getAllParents,
   getParentById,
   deleteParent,
-  updateParent
+  updateParent,
+
+  /// Roles
+  getAllRoles,
+  getRoleById,
+  deleteRole,
+  updateRole,
+  createRole,
 };

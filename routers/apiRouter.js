@@ -5,6 +5,7 @@ const studentRouter = require("./studentsRouter");
 const gradeRouter = require("./gradesRouter");
 const employeeRouter = require("./employeesRouter");
 const parentRouter = require("./parentsRouter");
+const roleRouter = require("./roleRouter");
 
 // Подключаем все подмаршруты
 apiRouter.use("/auth", authRouter);     
@@ -16,5 +17,7 @@ apiRouter.use("/grades", gradeRouter);
 apiRouter.use("/employees", employeeRouter);
 
 apiRouter.use("/parents", parentRouter);
+
+apiRouter.use("/roles", roleRouter);
 
 module.exports = apiRouter;

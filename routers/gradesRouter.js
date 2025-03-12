@@ -6,7 +6,7 @@ const {
     createGrade,
     updateGrade,
     deleteGrade } = require("../controllers");
-const { authenticate } = require("../middleware");
+const { authenticate } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех оценок по классу
