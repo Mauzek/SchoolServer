@@ -137,15 +137,15 @@ const getGradesByStudent = async (req, res) => {
 };
 
 const createGrade = async (req, res) => {
-  const { idStudent, idSubject, grade_value, grade_date, grade_type, description } = req.body;
+  const { idStudent, idSubject, gradeValue, gradeDate, gradeType, description } = req.body;
 
   try {
     const grade = await Grade.create({
       id_student: idStudent,
       id_subject: idSubject,
-      grade_value,
-      grade_date,
-      grade_type,
+      grade_value: gradeValue,
+      grade_date: gradeDate,
+      grade_type: gradeType,
       description,
     });
 
@@ -158,7 +158,7 @@ const createGrade = async (req, res) => {
 
 const updateGrade = async (req, res) => {
   const { idGrade } = req.params;
-  const { grade_value, grade_date, grade_type, description } = req.body;
+  const { gradeValue, gradeDate, gradeType, description } = req.body;
 
   try {
     const grade = await Grade.findByPk(idGrade);
@@ -167,9 +167,9 @@ const updateGrade = async (req, res) => {
       return res.status(404).json({ message: "Оценка не найдена" });
     }
 
-    grade.grade_value = grade_value;
-    grade.grade_date = grade_date;
-    grade.grade_type = grade_type;
+    grade.grade_value = gradeValue;
+    grade.grade_date = gradeDate;
+    grade.grade_type = gradeType;
     grade.description = description;
 
     await grade.save();
