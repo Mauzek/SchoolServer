@@ -60,6 +60,7 @@ const {
   updateStudent,
   deleteStudent,
 } = require("./studentController");
+const { getAllSubjects, updateSubjectById, deleteSubjectById, createSubject } = require("./subjectController");
 
 module.exports = {
   // Auth
@@ -128,7 +129,13 @@ module.exports = {
 
   //Position
   createPosition,
-  deletePositionById,
   updatePositionById,
+  deletePositionById,
   getAllPositions,
+
+  //Subjects
+  createSubject,
+  updateSubjectById,
+  deleteSubjectById,
+  getAllSubjects,
 };
