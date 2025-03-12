@@ -99,7 +99,7 @@ const createEmployee = async (req, res) => {
 
     // Отправка письма с логином и паролем
     const emailText = `Здравствуйте, ${firstName} ${lastName}!\n\nВаши данные для входа в систему:\nЛогин: ${login}\nПароль: ${password}\n\nС уважением,\nАдминистрация школы`;
-    await sendEmail(email, 'Регистрация в системе', emailText);
+    sendEmail(email, 'Регистрация в системе', emailText);
 
     // Подтверждение транзакции
     await transaction.commit();
