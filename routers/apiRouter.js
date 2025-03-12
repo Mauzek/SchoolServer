@@ -6,10 +6,11 @@ const gradeRouter = require("./gradesRouter");
 const employeeRouter = require("./employeesRouter");
 const parentRouter = require("./parentsRouter");
 const roleRouter = require("./rolesRouter");
-const educationalRouter = require("./employeesEducation");
-const educationsLevelRouter = require("./educationalLevel");
-const educationalInstitutionRouter = require("./educationalInstitution");
-const educationalSpecialtyRouter = require("./educationalSpecialty");
+const educationalRouter = require("./employeesEducationRouter");
+const educationsLevelRouter = require("./educationalLevelRouter");
+const educationalInstitutionRouter = require("./educationalInstitutionRouter");
+const educationalSpecialtyRouter = require("./educationalSpecialtyRouter");
+const positionRouter = require("./positionsRouter");
 
 // <---------Подключаем все подмаршруты--------->
 
@@ -42,5 +43,8 @@ apiRouter.use("/education/institutions", educationalInstitutionRouter);
 
 // Подмаршруты для специальностей образования
 apiRouter.use("/education/specialties", educationalSpecialtyRouter);
+
+// Подмаршруты для должностей
+apiRouter.use("/positions", positionRouter);
 
 module.exports = apiRouter;

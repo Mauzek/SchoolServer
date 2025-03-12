@@ -45,6 +45,7 @@ const {
   deleteParent,
   updateParent,
 } = require("./parentController");
+const { createPosition, deletePositionById, updatePositionById, getAllPositions } = require("./positionController");
 const {
   getAllRoles,
   getRoleById,
@@ -124,4 +125,10 @@ module.exports = {
   updateEducationLevelById,
   deleteEducationLevelById,
   getAllEducationLevels,
+
+  //Position
+  createPosition,
+  deletePositionById,
+  updatePositionById,
+  getAllPositions,
 };
