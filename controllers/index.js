@@ -61,6 +61,7 @@ const {
   deleteStudent,
 } = require("./studentController");
 const { getAllSubjects, updateSubjectById, deleteSubjectById, createSubject } = require("./subjectController");
+const { getTextbooksBySubject, getTextbooksByName, getAllTextbooks, updateTextbookById, deleteTextbookById, createTextbook, getTextbookById, getTextbooksByISBN } = require("./subjectTextbookController");
 
 module.exports = {
   // Auth
@@ -138,4 +139,14 @@ module.exports = {
   updateSubjectById,
   deleteSubjectById,
   getAllSubjects,
+
+  //SubjectTextbooks
+  createTextbook,
+  updateTextbookById,
+  deleteTextbookById,
+  getTextbooksBySubject,
+  getTextbooksByName,
+  getTextbookById,
+  getAllTextbooks,
+  getTextbooksByISBN
 };
