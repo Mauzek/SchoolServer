@@ -1,5 +1,6 @@
 const { create } = require("../models/User");
 const { login, refreshAccessToken, register } = require("./authController");
+const { getClassById, getClassByNumberAndLetter, getClassesByEmployeeId, getAllClasses, createClass, updateClassById, deleteClassById } = require("./classController");
 const {
   createEducationalInstitution,
   deleteEducationalInstitutionById,
@@ -148,5 +149,14 @@ module.exports = {
   getTextbooksByName,
   getTextbookById,
   getAllTextbooks,
-  getTextbooksByISBN
+  getTextbooksByISBN,
+
+  //Class
+  createClass,
+  updateClassById,
+  deleteClassById,
+  getClassById,
+  getClassByNumberAndLetter,
+  getClassesByEmployeeId,
+  getAllClasses,
 };

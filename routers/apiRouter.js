@@ -13,6 +13,7 @@ const educationalSpecialtyRouter = require("./educationalSpecialtyRouter");
 const positionRouter = require("./positionsRouter");
 const subjectRouter = require("./subjectsRouter");
 const subjectTextbooksRouter = require("./subjectTextbooksRouter");
+const classRouter = require("./classesRouter");
 
 // <---------Подключаем все подмаршруты--------->
 
@@ -54,5 +55,8 @@ apiRouter.use("/subjects", subjectRouter);
 
 // Подмаршруты для учебных пособий
 apiRouter.use("/textbooks", subjectTextbooksRouter);
+
+// Подмаршруты для классов
+apiRouter.use("/classes", classRouter);
 
 module.exports = apiRouter;
