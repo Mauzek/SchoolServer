@@ -1,7 +1,32 @@
-const { create } = require("../models/User");
-const { createAssignment, updateAssignmentById, deleteAssignmentById, getAssignmentById, getAssignmentsByClassId, getAssignmentsBySubjectId, getAssignmentsBySubjectAndClassId } = require("./assignmentController");
+const {
+  createAssignmentAnswer,
+  createTestingAnswer,
+  updateAssignmentAnswer,
+  getAssignmentAnswers,
+  getTestingAnswers,
+  getTestingAnswerById,
+  getAssignmentAnswerById,
+  updateTestingAnswerGrade,
+} = require("./answerContorller");
+const {
+  createAssignment,
+  updateAssignmentById,
+  deleteAssignmentById,
+  getAssignmentById,
+  getAssignmentsByClassId,
+  getAssignmentsBySubjectId,
+  getAssignmentsBySubjectAndClassId,
+} = require("./assignmentController");
 const { login, refreshAccessToken, register } = require("./authController");
-const { getClassById, getClassByNumberAndLetter, getClassesByEmployeeId, getAllClasses, createClass, updateClassById, deleteClassById } = require("./classController");
+const {
+  getClassById,
+  getClassByNumberAndLetter,
+  getClassesByEmployeeId,
+  getAllClasses,
+  createClass,
+  updateClassById,
+  deleteClassById,
+} = require("./classController");
 const {
   createEducationalInstitution,
   deleteEducationalInstitutionById,
@@ -47,7 +72,12 @@ const {
   deleteParent,
   updateParent,
 } = require("./parentController");
-const { createPosition, deletePositionById, updatePositionById, getAllPositions } = require("./positionController");
+const {
+  createPosition,
+  deletePositionById,
+  updatePositionById,
+  getAllPositions,
+} = require("./positionController");
 const {
   getAllRoles,
   getRoleById,
@@ -55,7 +85,15 @@ const {
   updateRole,
   createRole,
 } = require("./roleController");
-const { createSchedule, deleteScheduleById, updateScheduleById, getScheduleByClass, getScheduleByEmployee, getClassScheduleByWeekInterval, getEmployeeScheduleByWeekInterval } = require("./scheduleController");
+const {
+  createSchedule,
+  deleteScheduleById,
+  updateScheduleById,
+  getScheduleByClass,
+  getScheduleByEmployee,
+  getClassScheduleByWeekInterval,
+  getEmployeeScheduleByWeekInterval,
+} = require("./scheduleController");
 const {
   getAllStudents,
   getStudentsByClass,
@@ -63,8 +101,22 @@ const {
   updateStudent,
   deleteStudent,
 } = require("./studentController");
-const { getAllSubjects, updateSubjectById, deleteSubjectById, createSubject } = require("./subjectController");
-const { getTextbooksBySubject, getTextbooksByName, getAllTextbooks, updateTextbookById, deleteTextbookById, createTextbook, getTextbookById, getTextbooksByISBN } = require("./subjectTextbookController");
+const {
+  getAllSubjects,
+  updateSubjectById,
+  deleteSubjectById,
+  createSubject,
+} = require("./subjectController");
+const {
+  getTextbooksBySubject,
+  getTextbooksByName,
+  getAllTextbooks,
+  updateTextbookById,
+  deleteTextbookById,
+  createTextbook,
+  getTextbookById,
+  getTextbooksByISBN,
+} = require("./subjectTextbookController");
 
 module.exports = {
   // Auth
@@ -178,5 +230,15 @@ module.exports = {
   getAssignmentById,
   getAssignmentsByClassId,
   getAssignmentsBySubjectId,
-  getAssignmentsBySubjectAndClassId
+  getAssignmentsBySubjectAndClassId,
+
+  // Answers
+  createAssignmentAnswer,
+  createTestingAnswer,
+  updateAssignmentAnswer,
+  updateTestingAnswerGrade,
+  getAssignmentAnswers,
+  getTestingAnswers,
+  getTestingAnswerById,
+  getAssignmentAnswerById,
 };
