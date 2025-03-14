@@ -15,6 +15,7 @@ const subjectRouter = require("./subjectsRouter");
 const subjectTextbooksRouter = require("./subjectTextbooksRouter");
 const classRouter = require("./classesRouter");
 const scheduleRouter = require("./schedulesRouter");
+const assigmentRouter = require("./assigmentsRouter");
 
 // <---------Подключаем все подмаршруты--------->
 
@@ -62,5 +63,9 @@ apiRouter.use("/classes", classRouter);
 
 // Подмаршруты для расписаний
 apiRouter.use("/schedules", scheduleRouter);
+
+// Подмаршруты для заданий
+apiRouter.use("/assignments", assigmentRouter);
+
 
 module.exports = apiRouter;

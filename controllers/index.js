@@ -1,4 +1,5 @@
 const { create } = require("../models/User");
+const { createAssignment, updateAssignmentById, deleteAssignmentById, getAssignmentById, getAssignmentsByClassId, getAssignmentsBySubjectId, getAssignmentsBySubjectAndClassId } = require("./assignmentController");
 const { login, refreshAccessToken, register } = require("./authController");
 const { getClassById, getClassByNumberAndLetter, getClassesByEmployeeId, getAllClasses, createClass, updateClassById, deleteClassById } = require("./classController");
 const {
@@ -169,4 +170,13 @@ module.exports = {
   getScheduleByEmployee,
   getClassScheduleByWeekInterval,
   getEmployeeScheduleByWeekInterval,
+
+  //Assignments
+  createAssignment,
+  updateAssignmentById,
+  deleteAssignmentById,
+  getAssignmentById,
+  getAssignmentsByClassId,
+  getAssignmentsBySubjectId,
+  getAssignmentsBySubjectAndClassId
 };
