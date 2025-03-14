@@ -54,6 +54,7 @@ const {
   updateRole,
   createRole,
 } = require("./roleController");
+const { createSchedule, deleteScheduleById, updateScheduleById, getScheduleByClass, getScheduleByEmployee, getClassScheduleByWeekInterval, getEmployeeScheduleByWeekInterval } = require("./scheduleController");
 const {
   getAllStudents,
   getStudentsByClass,
@@ -159,4 +160,13 @@ module.exports = {
   getClassByNumberAndLetter,
   getClassesByEmployeeId,
   getAllClasses,
+
+  //Schedule
+  createSchedule,
+  deleteScheduleById,
+  updateScheduleById,
+  getScheduleByClass,
+  getScheduleByEmployee,
+  getClassScheduleByWeekInterval,
+  getEmployeeScheduleByWeekInterval,
 };

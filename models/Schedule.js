@@ -1,4 +1,3 @@
-// models/Schedule.js
 const { Model, DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db');
 
@@ -44,6 +43,10 @@ Schedule.init({
   },
   room_number: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  date: {
+    type: DataTypes.DATEONLY,
     allowNull: false,
   },
 }, {

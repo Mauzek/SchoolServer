@@ -80,7 +80,7 @@ Specialty.hasMany(EmployeeEducation, { foreignKey: 'id_specialty' });
 Class.hasMany(Schedule, { foreignKey: 'id_class' });
 Schedule.belongsTo(Class, { foreignKey: 'id_class' });
 // Связь "один-ко-многим": один сотрудник может быть классным руководителем нескольких классов
-Employee.hasMany(Class, { foreignKey: 'id_employee', as: 'Classes'});
+Employee.hasMany(Class, { foreignKey: 'id_employee', as: 'Classes' });
 // Связь "многие-к-одному": один класс имеет одного классного руководителя
 Class.belongsTo(Employee, { foreignKey: 'id_employee', as: 'ClassTeacher' });
 
@@ -111,7 +111,7 @@ Testing.belongsTo(Assignment, { foreignKey: 'id_assignment' });
 // Связь "один-ко-многим": один тест может иметь много ответов
 Testing.hasMany(TestingAnswer, { foreignKey: 'id_testing', as: 'Answers' });
 // Связь "многие-к-одному": один ответ принадлежит одному тесту
-TestingAnswer.belongsTo(Testing, { foreignKey: 'id_testing', as: 'Testing'});
+TestingAnswer.belongsTo(Testing, { foreignKey: 'id_testing', as: 'Testing' });
 
 // Экспортируем все модели
 module.exports = {
