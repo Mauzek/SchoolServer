@@ -1,4 +1,4 @@
-const { User, Student, Role, Class, Parent, StudentParent, sequelize } = require("../models");
+const { User, Student, Role, Class, Parent, StudentParent, Grade, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
 const { sendEmail } = require("../utils/email");
@@ -149,28 +149,32 @@ const getAllStudents = async (req, res) => {
       });
 
       const parents = parentRecords.map(record => ({
-        id_parent: record.Parent.id_parent,
+        idParent: record.Parent.id_parent,
         firstName: record.Parent.User.first_name,
         lastName: record.Parent.User.last_name,
         middleName: record.Parent.User.middle_name
       }));
 
       return {
-        id_student: student.id_student,
-        id_user: student.id_user,
-        id_class: student.id_class,
-        className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
-        phone: student.phone,
-        birth_date: student.birth_date,
-        document_number: student.document_number,
-        blood_group: student.blood_group,
-        firstName: student.User.first_name,
-        lastName: student.User.last_name,
-        middleName: student.User.middle_name,
-        login: student.User.login,
-        email: student.User.email,
-        gender: student.User.gender,
-        photo: student.User.photo,
+        student: {
+          idStudent: student.id_student,
+          firstName: student.User.first_name,
+          lastName: student.User.last_name,
+          middleName: student.User.middle_name,
+          phone: student.phone,
+          birthDate: student.birth_date,
+          login: student.User.login,
+          email: student.User.email,
+          gender: student.User.gender,
+          photo: student.User.photo,
+          documentNumber: student.document_number,
+          bloodGroup: student.blood_group,
+        },
+        class: {
+          idClass: student.id_class,
+          classNumber: student.Class ? student.Class.class_number : null,
+          classLetter: student.Class ? student.Class.class_letter : null
+        },
         parents: parents
       };
     }));
@@ -213,28 +217,32 @@ const getStudentsByClass = async (req, res) => {
       });
 
       const parents = parentRecords.map(record => ({
-        id_parent: record.Parent.id_parent,
+        idParent: record.Parent.id_parent,
         firstName: record.Parent.User.first_name,
         lastName: record.Parent.User.last_name,
         middleName: record.Parent.User.middle_name
       }));
 
       return {
-        id_student: student.id_student,
-        id_user: student.id_user,
-        id_class: student.id_class,
-        className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
-        phone: student.phone,
-        birth_date: student.birth_date,
-        document_number: student.document_number,
-        blood_group: student.blood_group,
-        firstName: student.User.first_name,
-        lastName: student.User.last_name,
-        middleName: student.User.middle_name,
-        login: student.User.login,
-        email: student.User.email,
-        gender: student.User.gender,
-        photo: student.User.photo,
+        student: {
+          idStudent: student.id_student,
+          firstName: student.User.first_name,
+          lastName: student.User.last_name,
+          middleName: student.User.middle_name,
+          phone: student.phone,
+          birthDate: student.birth_date,
+          login: student.User.login,
+          email: student.User.email,
+          gender: student.User.gender,
+          photo: student.User.photo,
+          documentNumber: student.document_number,
+          bloodGroup: student.blood_group,
+        },
+        class: {
+          idClass: student.id_class,
+          classNumber: student.Class ? student.Class.class_number : null,
+          classLetter: student.Class ? student.Class.class_letter : null
+        },
         parents: parents
       };
     }));
@@ -259,7 +267,11 @@ const getStudentById = async (req, res) => {
         },
         {
           model: Class,
-          attributes: ["class_number", "class_letter"],
+          attributes: ["id_class","class_number", "class_letter"],
+        },
+        {
+          model: Grade,
+          attributes: ["grade_value"],
         },
       ],
     });
@@ -280,29 +292,43 @@ const getStudentById = async (req, res) => {
     });
 
     const parents = parentRecords.map(record => ({
-      id_parent: record.Parent.id_parent,
+      idParent: record.Parent.id_parent,
       firstName: record.Parent.User.first_name,
       lastName: record.Parent.User.last_name,
       middleName: record.Parent.User.middle_name
     }));
 
+    const grades = student.Grades.map((grade) => grade.grade_value);
+
+    const distribution = grades.reduce((acc, grade) => {
+      if (grade >= 2 && grade <= 5) {
+        acc[grade] = (acc[grade] || 0) + 1;
+      }
+      return acc;
+    }, { 2: 0, 3: 0, 4: 0, 5: 0 });
+
     const studentWithClassInfo = {
-      id_student: student.id_student,
-      id_user: student.id_user,
-      id_class: student.id_class,
-      className: student.Class ? `${student.Class.class_number}${student.Class.class_letter}` : null,
-      phone: student.phone,
-      birth_date: student.birth_date,
-      document_number: student.document_number,
-      blood_group: student.blood_group,
-      firstName: student.User.first_name,
-      lastName: student.User.last_name,
-      middleName: student.User.middle_name,
-      login: student.User.login,
-      email: student.User.email,
-      gender: student.User.gender,
-      photo: student.User.photo,
-      parents: parents
+      student: {
+        idStudent: student.id_student,
+        firstName: student.User.first_name,
+        lastName: student.User.last_name,
+        middleName: student.User.middle_name,
+        phone: student.phone,
+        birthDate: student.birth_date,
+        login: student.User.login,
+        email: student.User.email,
+        gender: student.User.gender,
+        photo: student.User.photo,
+        documentNumber: student.document_number,
+        bloodGroup: student.blood_group,
+      },
+      class: {
+        idClass: student.id_class,
+        classNumber: student.Class ? student.Class.class_number : null,
+        classLetter: student.Class ? student.Class.class_letter : null
+      },
+      parents: parents,
+      distribution: distribution
     };
 
     res.json(studentWithClassInfo);

@@ -94,6 +94,7 @@ const {
   getClassScheduleByWeekInterval,
   getEmployeeScheduleByWeekInterval,
 } = require("./scheduleController");
+const { getAverageGradesByClass, getAverageGradesByStudent, getAverageGradesBySubject, getGradeDistributionByClass, getGradeDistributionByStudent, getGradeDistributionBySubject } = require("./statisticsContorller");
 const {
   getAllStudents,
   getStudentsByClass,
@@ -241,4 +242,12 @@ module.exports = {
   getTestingAnswers,
   getTestingAnswerById,
   getAssignmentAnswerById,
+
+  // Statistics
+  getAverageGradesByClass,
+  getAverageGradesByStudent,
+  getAverageGradesBySubject,
+  getGradeDistributionByClass,
+  getGradeDistributionByStudent,
+  getGradeDistributionBySubject,
 };

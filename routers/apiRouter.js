@@ -17,6 +17,7 @@ const classRouter = require("./classesRouter");
 const scheduleRouter = require("./schedulesRouter");
 const assigmentRouter = require("./assigmentsRouter");
 const answerRouter = require("./answersRouter");
+const с = require("./statisticsRouter");
 
 // <---------Подключаем все подмаршруты--------->
 
@@ -71,5 +72,7 @@ apiRouter.use("/assignments", assigmentRouter);
 // Подмаршруты для ответов
 apiRouter.use("/answers", answerRouter);
 
+// Подмаршруты для статистики
+apiRouter.use("/statistics", с);
 
 module.exports = apiRouter;
