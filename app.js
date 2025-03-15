@@ -1,21 +1,18 @@
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const express = require("express");
-const cors = require("cors");
 const morgan = require("morgan");
 const apiRouter = require("./routers/apiRouter");
-const { sequelize, connectDB } = require("./database/db");
+const { sequelize,connectDB } = require("./database/db");
+const {corsMiddleware} = require("./middlewares");
 
 const app = express();
 
 // Настройки middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(corsMiddleware);  // Используем CORS middleware
 app.use(cookieParser());
 app.use(express.json());
-app.use(morgan("combined"));
+app.use(morgan("combined"));  // Логирование запросов
 
 // API маршруты
 app.use("/api/v1", apiRouter);
@@ -28,9 +25,13 @@ app.use((req, res, next) => {
 // Централизованный обработчик ошибок
 app.use((err, req, res, next) => {
   console.error("Ошибка при обработке запроса:", err);
-  res.status(err.status || 500).json({
-    error: err.message || "Внутренняя ошибка сервера"
-  });
+  const statusCode = err.status || 500;
+  const message = err.message || "Внутренняя ошибка сервера";
+
+  res.status(statusCode).json({
+    error: message,
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack })  // Показывать стек ошибок в режиме разработки
+  })
 });
 
 // Запуск сервера

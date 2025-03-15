@@ -49,8 +49,10 @@ const login = async (req, res) => {
         const studClass = await Class.findOne({ where: { id_class: student.id_class } });
         if (student) {
           additionalInfo = {
+            idStudent: student.id_student,
             idClass: student.id_class,
-            name: studClass.class_number + studClass.class_letter,
+            classNumber: studClass.class_number,
+            classLetter: studClass.class_letter,
           };
         }
         break;
@@ -61,6 +63,7 @@ const login = async (req, res) => {
         }
         if (employee) {
           additionalInfo = {
+            idEmployee: employee.id_employee,
             position: employee.id_position
           };
         }
@@ -82,7 +85,7 @@ const login = async (req, res) => {
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
-
+    console.log(additionalInfo);
     res.json({
       message: "Успешный вход",
       user: {
@@ -96,7 +99,7 @@ const login = async (req, res) => {
         lastName: user.last_name,
         middleName: user.middle_name,
         photo: user.photo,
-        ...additionalInfo
+        additionalInfo: additionalInfo,
       },
       accessToken,
       refreshToken
