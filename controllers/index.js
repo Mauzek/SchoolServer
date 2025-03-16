@@ -17,7 +17,7 @@ const {
   getAssignmentsBySubjectId,
   getAssignmentsBySubjectAndClassId,
 } = require("./assignmentController");
-const { login, refreshAccessToken, register } = require("./authController");
+const { login, refreshAccessToken, register, loginWithJWT } = require("./authController");
 const {
   getClassById,
   getClassByNumberAndLetter,
@@ -124,6 +124,7 @@ module.exports = {
   register,
   login,
   refreshAccessToken,
+  loginWithJWT,
 
   // Students
   getAllStudents,
