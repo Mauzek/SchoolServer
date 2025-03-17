@@ -1,6 +1,6 @@
 const express = require("express");
 const { getEmployeeById, getAllEmployees, updateEmployee, deleteEmployee } = require("../controllers");
-const { authenticate } = require("../middlewares");
+const { authenticate, upload } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех сотрудников
@@ -10,7 +10,7 @@ router.get("/all", authenticate, getAllEmployees);
 router.get("/:idEmployee", authenticate, getEmployeeById);
 
 // Обновление сотрудника
-router.put("/:idEmployee", authenticate, updateEmployee);
+router.put("/:idEmployee", authenticate, upload.single('photo'), updateEmployee);
 
 // Обновление статуса сотрудника (увольнение)
 router.put("/:idEmployee/status", authenticate, deleteEmployee);

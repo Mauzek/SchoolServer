@@ -50,3 +50,9 @@ database/local.*
 # Файлы операционной системы
 *.swp
 *~
+
+# Игнорировать всё в папке uploads
+uploads/*
+
+# Но сохранить саму папку с пустым .gitkeep файлом
+!uploads/.gitkeep

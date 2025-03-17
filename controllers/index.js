@@ -17,7 +17,7 @@ const {
   getAssignmentsBySubjectId,
   getAssignmentsBySubjectAndClassId,
 } = require("./assignmentController");
-const { login, refreshAccessToken, register, loginWithJWT } = require("./authController");
+const { login, refreshAccessToken, register, loginWithJWT, updateUserAvatar } = require("./authController");
 const {
   getClassById,
   getClassByNumberAndLetter,
@@ -94,7 +94,7 @@ const {
   getClassScheduleByWeekInterval,
   getEmployeeScheduleByWeekInterval,
 } = require("./scheduleController");
-const { getAverageGradesByClass, getAverageGradesByStudent, getAverageGradesBySubject, getGradeDistributionByClass, getGradeDistributionByStudent, getGradeDistributionBySubject } = require("./statisticsContorller");
+const { getAverageGradesByClass, getAverageGradesByStudent, getAverageGradesBySubject, getGradeDistributionByClass, getGradeDistributionByStudent, getGradeDistributionBySubject, getTopStudentsByAverageGrade } = require("./statisticsContorller");
 const {
   getAllStudents,
   getStudentsByClass,
@@ -125,6 +125,7 @@ module.exports = {
   login,
   refreshAccessToken,
   loginWithJWT,
+  updateUserAvatar,
 
   // Students
   getAllStudents,
@@ -251,4 +252,5 @@ module.exports = {
   getGradeDistributionByClass,
   getGradeDistributionByStudent,
   getGradeDistributionBySubject,
+  getTopStudentsByAverageGrade,
 };

@@ -7,6 +7,7 @@ const {
     getGradeDistributionByClass,
     getGradeDistributionByStudent,
     getGradeDistributionBySubject,
+    getTopStudentsByAverageGrade,
 } = require("../controllers");
 const router = express.Router();
 
@@ -22,6 +23,9 @@ router.get("/grade-distribution-by-class", authenticate, getGradeDistributionByC
 router.get("/grade-distribution-by-student", authenticate, getGradeDistributionByStudent);
 // Получение распределения оценок по предмету
 router.get("/grade-distribution-by-subject", authenticate, getGradeDistributionBySubject);
+
+// Получение топ-5 учеников по среднему баллу
+router.get("/top-students-by-average-grade", authenticate, getTopStudentsByAverageGrade);
 
 
 module.exports = router;

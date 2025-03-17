@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 const User = require("../models/User");
 const { createEmployee } = require("./employeeController");
 const { createParent } = require("./parentController");
@@ -91,7 +93,6 @@ const login = async (req, res) => {
           };
         }
         break;
-
       default:
         break;
     }
@@ -109,6 +110,12 @@ const login = async (req, res) => {
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
+
+    // Формируем полный URL для фото, если оно есть
+    const photoUrl = user.photo
+      ? `${req.protocol}://${req.get("host")}${user.photo}`
+      : null;
+
     res.json({
       message: "Успешный вход",
       user: {
@@ -116,13 +123,13 @@ const login = async (req, res) => {
         email: user.email,
         login: user.login,
         role: {
-          idRole: user.id_role,
+          id: user.id_role,
           name: roleName,
         },
         firstName: user.first_name,
         lastName: user.last_name,
         middleName: user.middle_name,
-        photo: user.photo,
+        photo: photoUrl,
         additionalInfo: additionalInfo,
       },
       accessToken,
@@ -172,6 +179,11 @@ const register = async (req, res) => {
     return res.status(400).json({ message: "Role is required" });
   }
 
+  // Если загружен файл, добавляем путь к фото в req.body
+  if (req.file) {
+    req.body.photo = `/uploads/userPhotos/${req.file.filename}`;
+  }
+
   switch (role) {
     case "parent":
       return createParent(req, res);
@@ -180,6 +192,10 @@ const register = async (req, res) => {
     case "employee":
       return createEmployee(req, res);
     default:
+      // Удаляем загруженный файл, если роль неверная
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(400).json({ message: "Invalid role" });
   }
 };
@@ -318,6 +334,11 @@ const loginWithJWT = async (req, res) => {
     // If we generated a new access token, use it, otherwise use the original
     const responseAccessToken = newAccessToken || accessToken;
 
+    // Формируем полный URL для фото, если оно есть
+    const photoUrl = user.photo
+      ? `${req.protocol}://${req.get("host")}${user.photo}`
+      : null;
+
     res.json({
       message: "Успешная авторизация по токену",
       user: {
@@ -325,13 +346,13 @@ const loginWithJWT = async (req, res) => {
         email: user.email,
         login: user.login,
         role: {
-          idRole: user.id_role,
+          id: user.id_role,
           name: roleName,
         },
         firstName: user.first_name,
         lastName: user.last_name,
         middleName: user.middle_name,
-        photo: user.photo,
+        photo: photoUrl,
         additionalInfo: additionalInfo,
       },
       accessToken: responseAccessToken,
@@ -344,4 +365,165 @@ const loginWithJWT = async (req, res) => {
   }
 };
 
-module.exports = { login, refreshAccessToken, register, loginWithJWT };
+const updateUserAvatar = async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+
+    // Проверяем наличие токена
+    if (!accessToken) {
+      return res
+        .status(400)
+        .json({ message: "Access token is required" });
+    }
+
+    // Проверяем, загружен ли файл
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Декодируем токен
+    let decodedAccessToken;
+    try {
+      decodedAccessToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    } catch (err) {
+      console.error("Token verification error:", err);
+      
+      // Удаляем загруженный файл в случае ошибки с токеном
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
+      
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: "Token expired", error: err.message });
+      } else {
+        return res.status(401).json({ message: "Invalid token", error: err.message });
+      }
+    }
+
+    // Находим пользователя
+    const user = await User.findByPk(decodedAccessToken.id);
+    if (!user) {
+      // Удаляем загруженный файл, если пользователь не найден
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Удаляем старый аватар, если он существует
+    if (user.photo) {
+      try {
+        const oldPhotoPath = path.join(__dirname, "..", user.photo);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      } catch (err) {
+        console.error("Error deleting old avatar:", err);
+        // Продолжаем выполнение, даже если не удалось удалить старый файл
+      }
+    }
+
+    // Обновляем путь к фото
+    const photoPath = `/uploads/userPhotos/${req.file.filename}`;
+    await user.update({ photo: photoPath });
+
+    // Формируем полный URL для фото
+    const photoUrl = `${req.protocol}://${req.get("host")}${photoPath}`;
+
+    // Получаем информацию о роли пользователя
+    const role = await Role.findByPk(user.id_role);
+    const roleName = role ? role.name : null;
+
+    // Получаем дополнительную информацию в зависимости от роли
+    let additionalInfo = {};
+    switch (user.id_role) {
+      case 4: // Parent
+        const parent = await Parent.findOne({
+          where: { id_user: user.id_user },
+        });
+        if (parent) {
+          const studentParentRecords = await StudentParent.findAll({
+            where: { id_parent: parent.id_parent },
+            attributes: ["id_student"],
+          });
+          const childrenIds = studentParentRecords.map(
+            (record) => record.id_student
+          );
+          additionalInfo = {
+            idParent: parent.id_parent,
+            childrenIds: childrenIds,
+          };
+        }
+        break;
+      case 3: // Student
+        const student = await Student.findOne({
+          where: { id_user: user.id_user },
+        });
+        const studClass = await Class.findOne({
+          where: { id_class: student.id_class },
+        });
+        if (student) {
+          additionalInfo = {
+            idStudent: student.id_student,
+            idClass: student.id_class,
+            classNumber: studClass.class_number,
+            classLetter: studClass.class_letter,
+          };
+        }
+        break;
+      case 1:
+      case 2: // Employee
+        const employee = await Employee.findOne({
+          where: { id_user: user.id_user },
+          include: { model: Position, attributes: ["name"] },
+        });
+        if (employee) {
+          additionalInfo = {
+            idEmployee: employee.id_employee,
+            position: {
+              id: employee.id_position,
+              name: employee.Position.name,
+            },
+          };
+        }
+        break;
+      default:
+        break;
+    }
+
+    res.status(200).json({
+      message: "Аватар успешно обновлен",
+      photo: photoUrl,
+      user: {
+        id: user.id_user,
+        email: user.email,
+        login: user.login,
+        role: {
+          id: user.id_role,
+          name: roleName,
+        },
+        firstName: user.first_name,
+        lastName: user.last_name,
+        middleName: user.middle_name,
+        photo: photoUrl,
+        additionalInfo: additionalInfo,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Ошибка обновления аватара" });
+
+    // Удаляем загруженный файл в случае ошибки
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error("Error deleting uploaded file:", unlinkError);
+      }
+    }
+
+    res
+      .status(500)
+      .json({ message: "Error updating avatar", error: error.message });
+  }
+};
+
+
+module.exports = { login, refreshAccessToken, register, loginWithJWT, updateUserAvatar };

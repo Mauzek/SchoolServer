@@ -1,12 +1,27 @@
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const express = require("express");
+const path = require('path');
+const fs = require('fs');
 const morgan = require("morgan");
 const apiRouter = require("./routers/apiRouter");
 const { sequelize,connectDB } = require("./database/db");
 const {corsMiddleware} = require("./middlewares");
 
 const app = express();
+
+const uploadDir = path.join(__dirname, 'uploads');
+const userPhotosDir = path.join(uploadDir, 'userPhotos');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+if (!fs.existsSync(userPhotosDir)) {
+  fs.mkdirSync(userPhotosDir);
+}
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Настройки middleware
 app.use(corsMiddleware);  // Используем CORS middleware

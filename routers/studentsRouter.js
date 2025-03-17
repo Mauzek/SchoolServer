@@ -6,7 +6,7 @@ const {
   updateStudent,
   deleteStudent,
 } = require("../controllers");
-const { authenticate } = require("../middlewares");
+const { authenticate, upload } = require("../middlewares");
 const router = express.Router();
 
 // Получение всех студентов
@@ -22,7 +22,7 @@ router.get("/:idStudent", authenticate, getStudentById);
 
 // Обновление студента
 // Параметр :idStudent - идентификатор студента
-router.put("/:idStudent", authenticate, updateStudent);
+router.put("/:idStudent", authenticate, upload.single('photo'), updateStudent);
 
 // Удаление студента
 // Параметр :idStudent - идентификатор студента

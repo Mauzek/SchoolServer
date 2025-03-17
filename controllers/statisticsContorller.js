@@ -1,4 +1,4 @@
-const { Grade, Student, User, Class, Subject, Employee } = require("../models");
+const { Grade, Student, User, Class, Subject, Employee, Role } = require("../models");
 
 // Get average grades for each subject
 const getAverageGradesBySubject = async (req, res) => {
@@ -343,6 +343,78 @@ const getGradeDistributionByStudent = async (req, res) => {
   }
 };
 
+const getTopStudentsByAverageGrade = async (req, res) => {
+  try {
+    const students = await Student.findAll({
+      include: [
+        {
+          model: Grade,
+          attributes: ["grade_value"],
+        },
+        {
+          model: User,
+          attributes: ["id_user","first_name", "last_name", "middle_name", "photo"],
+          include: [
+            {
+              model: Role,
+              attributes: ["id_role","name"],
+            },
+          ]
+        },
+        {
+          model: Class,
+          attributes: ["id_class", "class_number", "class_letter"],
+        },
+      ],
+    });
+
+    const studentsWithAverage = students.map((student) => {
+      const grades = student.Grades.map((grade) => grade.grade_value);
+      const averageGrade =
+        grades.reduce((sum, grade) => sum + grade, 0) / grades.length || 0;
+
+      return {
+        idUser: student.id_user,
+        idStudent: student.id_student,
+        firstName: student.User.first_name,
+        lastName: student.User.last_name,
+        middleName: student.User.middle_name,
+        role:{
+          id: student.User.Role.id_role,
+          name: student.User.Role.name,
+        },
+        class: {
+          idClass: student.Class.id_class,
+          classNumber: student.Class.class_number,
+          classLetter: student.Class.class_letter,
+        },
+        averageGrade,
+        photo: student.User.photo,
+      };
+    });
+
+    const sortedStudents = studentsWithAverage.sort(
+      (a, b) => b.averageGrade - a.averageGrade
+    );
+
+    const topStudents = sortedStudents.slice(0, 5).map((student, index) => {
+      return {
+        ...student,
+        rankingPosition: index + 1,
+      };
+    });
+
+    res.status(200).json({
+      message: "Top 5 students by average grade fetched successfully",
+      data: topStudents,
+    });
+  } catch (error) {
+    console.error("Error fetching top students by average grade:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
 module.exports = {
   getAverageGradesBySubject,
   getAverageGradesByClass,
@@ -350,4 +422,5 @@ module.exports = {
   getGradeDistributionBySubject,
   getGradeDistributionByClass,
   getGradeDistributionByStudent,
+  getTopStudentsByAverageGrade,
 };
