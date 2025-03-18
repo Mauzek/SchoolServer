@@ -344,16 +344,18 @@ const getStudentById = async (req, res) => {
         model: Parent,
         include: {
           model: User,
-          attributes: ["first_name", "last_name", "middle_name"]
+          attributes: ["first_name", "last_name", "middle_name", "photo"]
         }
       }
     });
 
     const parents = parentRecords.map(record => ({
       idParent: record.Parent.id_parent,
+      type: record.Parent.parent_type,
       firstName: record.Parent.User.first_name,
       lastName: record.Parent.User.last_name,
-      middleName: record.Parent.User.middle_name
+      middleName: record.Parent.User.middle_name,
+      photo: record.Parent.User.photo ? `${req.protocol}://${req.get("host")}${record.Parent.User.photo}` : null
     }));
 
     const grades = student.Grades.map((grade) => grade.grade_value);
@@ -403,7 +405,6 @@ const getStydentsByParentId = async (req, res) => {
   const { idParent } = req.params;
 
   try {
-    // Find all student-parent relationships for this parent
     const studentParentRecords = await StudentParent.findAll({
       where: { id_parent: idParent }
     });
@@ -412,10 +413,8 @@ const getStydentsByParentId = async (req, res) => {
       return res.status(404).json({ message: "No students found for this parent" });
     }
 
-    // Get all student IDs
     const studentIds = studentParentRecords.map(record => record.id_student);
 
-    // Fetch all students with these IDs
     const students = await Student.findAll({
       where: { id_student: studentIds },
       include: [
@@ -430,7 +429,6 @@ const getStydentsByParentId = async (req, res) => {
       ],
     });
 
-    // Format the student data
     const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
       const parentRecords = await StudentParent.findAll({
         where: { id_student: student.id_student },
@@ -482,7 +480,6 @@ const getStydentsByParentId = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 const updateStudent = async (req, res) => {
   const transaction = await sequelize.transaction();
