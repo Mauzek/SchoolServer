@@ -101,6 +101,7 @@ const {
   getStudentById,
   updateStudent,
   deleteStudent,
+  getStydentsByParentId,
 } = require("./studentController");
 const {
   getAllSubjects,
@@ -131,6 +132,7 @@ module.exports = {
   getAllStudents,
   getStudentById,
   getStudentsByClass,
+  getStydentsByParentId,
   updateStudent,
   deleteStudent,
 

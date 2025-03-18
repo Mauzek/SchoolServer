@@ -3,6 +3,7 @@ const {
   getAllStudents,
   getStudentsByClass,
   getStudentById,
+  getStydentsByParentId,
   updateStudent,
   deleteStudent,
 } = require("../controllers");
@@ -19,6 +20,8 @@ router.get("/class/:idClass", authenticate, getStudentsByClass);
 // Получение студента по идентификатору
 // Параметр :idStudent - идентификатор студента
 router.get("/:idStudent", authenticate, getStudentById);
+
+router.get("/parent/:idParent", authenticate, getStydentsByParentId);
 
 // Обновление студента
 // Параметр :idStudent - идентификатор студента

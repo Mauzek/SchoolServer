@@ -613,7 +613,7 @@ const getParentById = async (req, res) => {
         classNumber: sp.Student.Class.class_number,
         classLetter: sp.Student.Class.class_letter,
       },
-      photo: sp.Student.User.photo,
+      photo: sp.Student.User.photo ? `${req.protocol}://${req.get("host")}${sp.Student.User.photo}` : null,
       role: { id: sp.Student.User.id_role, name: sp.Student.User.Role.name },
     }));
 

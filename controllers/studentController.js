@@ -399,6 +399,91 @@ const getStudentById = async (req, res) => {
   }
 };
 
+const getStydentsByParentId = async (req, res) => {
+  const { idParent } = req.params;
+
+  try {
+    // Find all student-parent relationships for this parent
+    const studentParentRecords = await StudentParent.findAll({
+      where: { id_parent: idParent }
+    });
+
+    if (!studentParentRecords || studentParentRecords.length === 0) {
+      return res.status(404).json({ message: "No students found for this parent" });
+    }
+
+    // Get all student IDs
+    const studentIds = studentParentRecords.map(record => record.id_student);
+
+    // Fetch all students with these IDs
+    const students = await Student.findAll({
+      where: { id_student: studentIds },
+      include: [
+        {
+          model: User,
+          attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
+        },
+        {
+          model: Class,
+          attributes: ["class_number", "class_letter"],
+        },
+      ],
+    });
+
+    // Format the student data
+    const studentsWithClassInfo = await Promise.all(students.map(async (student) => {
+      const parentRecords = await StudentParent.findAll({
+        where: { id_student: student.id_student },
+        include: {
+          model: Parent,
+          include: {
+            model: User,
+            attributes: ["first_name", "last_name", "middle_name"]
+          }
+        }
+      });
+
+      const parents = parentRecords.map(record => ({
+        idParent: record.Parent.id_parent,
+        firstName: record.Parent.User.first_name,
+        lastName: record.Parent.User.last_name,
+        middleName: record.Parent.User.middle_name
+      }));
+
+      const photoUrl = student.User.photo ? `${req.protocol}://${req.get("host")}${student.User.photo}` : null;
+
+      return {
+        student: {
+          idStudent: student.id_student,
+          firstName: student.User.first_name,
+          lastName: student.User.last_name,
+          middleName: student.User.middle_name,
+          phone: student.phone,
+          birthDate: student.birth_date,
+          login: student.User.login,
+          email: student.User.email,
+          gender: student.User.gender,
+          photo: photoUrl,
+          documentNumber: student.document_number,
+          bloodGroup: student.blood_group,
+        },
+        class: {
+          idClass: student.id_class,
+          classNumber: student.Class ? student.Class.class_number : null,
+          classLetter: student.Class ? student.Class.class_letter : null
+        },
+        parents: parents
+      };
+    }));
+
+    res.json(studentsWithClassInfo);
+  } catch (error) {
+    console.error("Error fetching students by parent ID:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
 const updateStudent = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
@@ -633,6 +718,7 @@ module.exports = {
   getAllStudents,
   getStudentsByClass,
   getStudentById,
+  getStydentsByParentId,
   updateStudent,
   deleteStudent,
 };
