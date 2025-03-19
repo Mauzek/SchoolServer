@@ -118,9 +118,32 @@ const updateSubjectById = async (req, res) => {
   }
 };
 
+const getSubjectById = async (req, res) => {
+  const { idSubject } = req.params;
+  try {
+    const subject = await Subject.findByPk(idSubject, {
+      attributes: ["id_subject", "name", "description"],
+    });
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+    const formattedSubject = {
+      idSubject: subject.id_subject,
+      name: subject.name,
+      description: subject.description,
+    };
+    res.status(200).json({ message: "Subject fetched successfully", subject: formattedSubject });
+  }
+  catch (error) {
+    console.error("Error fetching subject:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+}
+
 module.exports = {
   getAllSubjects,
   createSubject,
   deleteSubjectById,
   updateSubjectById,
+  getSubjectById,
 };

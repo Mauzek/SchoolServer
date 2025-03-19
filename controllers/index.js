@@ -7,6 +7,8 @@ const {
   getTestingAnswerById,
   getAssignmentAnswerById,
   updateTestingAnswerGrade,
+  getStudentAssignmentAnswer,
+  getStudentTestingAnswer,
 } = require("./answerContorller");
 const {
   createAssignment,
@@ -108,6 +110,7 @@ const {
   updateSubjectById,
   deleteSubjectById,
   createSubject,
+  getSubjectById,
 } = require("./subjectController");
 const {
   getTextbooksBySubject,
@@ -199,6 +202,7 @@ module.exports = {
   updateSubjectById,
   deleteSubjectById,
   getAllSubjects,
+  getSubjectById,
 
   //SubjectTextbooks
   createTextbook,
@@ -246,6 +250,8 @@ module.exports = {
   getTestingAnswers,
   getTestingAnswerById,
   getAssignmentAnswerById,
+  getStudentAssignmentAnswer,
+  getStudentTestingAnswer,
 
   // Statistics
   getAverageGradesByClass,

@@ -116,12 +116,10 @@ const createAssignment = async (req, res) => {
         : null,
     };
 
-    res
-      .status(201)
-      .json({
-        message: "Assignment created successfully",
-        data: formattedAssignment,
-      });
+    res.status(201).json({
+      message: "Assignment created successfully",
+      data: formattedAssignment,
+    });
   } catch (error) {
     console.error("Error creating assignment:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -265,12 +263,10 @@ const updateAssignmentById = async (req, res) => {
         : null,
     };
 
-    res
-      .status(200)
-      .json({
-        message: "Assignment updated successfully",
-        data: formattedAssignment,
-      });
+    res.status(200).json({
+      message: "Assignment updated successfully",
+      data: formattedAssignment,
+    });
   } catch (error) {
     console.error("Error updating assignment:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -314,26 +310,17 @@ const getAssignmentsBySubjectId = async (req, res) => {
         idSubject: assignment.Subject.id_subject,
         subjectName: assignment.Subject.name,
       },
-      class: assignment.Class
-        ? {
-            idClass: assignment.Class.id_class,
-            classNumber: assignment.Class.class_number,
-            classLetter: assignment.Class.class_letter,
-          }
-        : null,
-      employee: assignment.Employee
-        ? {
-            idEmployee: assignment.Employee.id_employee,
-            user: assignment.Employee.User
-              ? {
-                  idUser: assignment.Employee.User.id_user,
-                  firstName: assignment.Employee.User.first_name,
-                  lastName: assignment.Employee.User.last_name,
-                  middleName: assignment.Employee.User.middle_name,
-                }
-              : null,
-          }
-        : null,
+      class: {
+        idClass: assignment.Class.id_class,
+        classNumber: assignment.Class.class_number,
+        classLetter: assignment.Class.class_letter,
+      },
+      employee: {
+        idEmployee: assignment.Employee.id_employee,
+        firstName: assignment.Employee.User.first_name,
+        lastName: assignment.Employee.User.last_name,
+        middleName: assignment.Employee.User.middle_name,
+      },
       title: assignment.title,
       description: assignment.description,
       fileLink: assignment.file_link,
@@ -348,12 +335,10 @@ const getAssignmentsBySubjectId = async (req, res) => {
         : null,
     }));
 
-    res
-      .status(200)
-      .json({
-        message: "Assignments fetched successfully",
-        data: formattedAssignments,
-      });
+    res.status(200).json({
+      message: "Assignments fetched successfully",
+      data: formattedAssignments,
+    });
   } catch (error) {
     console.error("Error fetching assignments by subject ID:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -400,26 +385,17 @@ const getAssignmentById = async (req, res) => {
         idSubject: assignment.Subject.id_subject,
         subjectName: assignment.Subject.name,
       },
-      class: assignment.Class
-        ? {
-            idClass: assignment.Class.id_class,
-            classNumber: assignment.Class.class_number,
-            classLetter: assignment.Class.class_letter,
-          }
-        : null,
-      employee: assignment.Employee
-        ? {
-            idEmployee: assignment.Employee.id_employee,
-            user: assignment.Employee.User
-              ? {
-                  idUser: assignment.Employee.User.id_user,
-                  firstName: assignment.Employee.User.first_name,
-                  lastName: assignment.Employee.User.last_name,
-                  middleName: assignment.Employee.User.middle_name,
-                }
-              : null,
-          }
-        : null,
+      class: {
+        idClass: assignment.Class.id_class,
+        classNumber: assignment.Class.class_number,
+        classLetter: assignment.Class.class_letter,
+      },
+      employee: {
+        idEmployee: assignment.Employee.id_employee,
+        firstName: assignment.Employee.User.first_name,
+        lastName: assignment.Employee.User.last_name,
+        middleName: assignment.Employee.User.middle_name,
+      },
       title: assignment.title,
       description: assignment.description,
       fileLink: assignment.file_link,
@@ -434,12 +410,10 @@ const getAssignmentById = async (req, res) => {
         : null,
     };
 
-    res
-      .status(200)
-      .json({
-        message: "Assignment fetched successfully",
-        data: formattedAssignment,
-      });
+    res.status(200).json({
+      message: "Assignment fetched successfully",
+      data: formattedAssignment,
+    });
   } catch (error) {
     console.error("Error fetching assignment by ID:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -483,26 +457,17 @@ const getAssignmentsByClassId = async (req, res) => {
         idSubject: assignment.Subject.id_subject,
         subjectName: assignment.Subject.name,
       },
-      class: assignment.Class
-        ? {
-            idClass: assignment.Class.id_class,
-            classNumber: assignment.Class.class_number,
-            classLetter: assignment.Class.class_letter,
-          }
-        : null,
-      employee: assignment.Employee
-        ? {
-            idEmployee: assignment.Employee.id_employee,
-            user: assignment.Employee.User
-              ? {
-                  idUser: assignment.Employee.User.id_user,
-                  firstName: assignment.Employee.User.first_name,
-                  lastName: assignment.Employee.User.last_name,
-                  middleName: assignment.Employee.User.middle_name,
-                }
-              : null,
-          }
-        : null,
+      class: {
+        idClass: assignment.Class.id_class,
+        classNumber: assignment.Class.class_number,
+        classLetter: assignment.Class.class_letter,
+      },
+      employee: {
+        idEmployee: assignment.Employee.id_employee,
+        firstName: assignment.Employee.User.first_name,
+        lastName: assignment.Employee.User.last_name,
+        middleName: assignment.Employee.User.middle_name,
+      },
       title: assignment.title,
       description: assignment.description,
       fileLink: assignment.file_link,
@@ -517,12 +482,10 @@ const getAssignmentsByClassId = async (req, res) => {
         : null,
     }));
 
-    res
-      .status(200)
-      .json({
-        message: "Assignments fetched successfully",
-        data: formattedAssignments,
-      });
+    res.status(200).json({
+      message: "Assignments fetched successfully",
+      data: formattedAssignments,
+    });
   } catch (error) {
     console.error("Error fetching assignments by class ID:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -560,44 +523,48 @@ const getAssignmentsBySubjectAndClassId = async (req, res) => {
       ],
     });
 
-    const formattedAssignments = assignments.map(assignment => ({
+    const formattedAssignments = assignments.map((assignment) => ({
       idAssignment: assignment.id_assignment,
       subject: {
         idSubject: assignment.Subject.id_subject,
         subjectName: assignment.Subject.name,
       },
-      class: assignment.Class ? {
+      class: {
         idClass: assignment.Class.id_class,
         classNumber: assignment.Class.class_number,
         classLetter: assignment.Class.class_letter,
-      } : null,
-      employee: assignment.Employee ? {
+      },
+      employee: {
         idEmployee: assignment.Employee.id_employee,
-        user: assignment.Employee.User ? {
-          idUser: assignment.Employee.User.id_user,
-          firstName: assignment.Employee.User.first_name,
-          lastName: assignment.Employee.User.last_name,
-          middleName: assignment.Employee.User.middle_name,
-        } : null,
-      } : null,
+        firstName: assignment.Employee.User.first_name,
+        lastName: assignment.Employee.User.last_name,
+        middleName: assignment.Employee.User.middle_name,
+      },
       title: assignment.title,
       description: assignment.description,
       fileLink: assignment.file_link,
       openTime: assignment.open_time,
       closeTime: assignment.close_time,
-      testing: assignment.Testing ? {
-        idTesting: assignment.Testing.id_testing,
-        fileLink: assignment.Testing.file_link,
-        attemptsCount: assignment.Testing.attempts_count,
-      } : null,
+      testing: assignment.Testing
+        ? {
+            idTesting: assignment.Testing.id_testing,
+            fileLink: assignment.Testing.file_link,
+            attemptsCount: assignment.Testing.attempts_count,
+          }
+        : null,
     }));
 
-    res.status(200).json({ message: "Assignments fetched successfully", data: formattedAssignments });
+    res.status(200).json({
+      message: "Assignments fetched successfully",
+      data: formattedAssignments,
+    });
   } catch (error) {
     console.error("Error fetching assignments by subject and class ID:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 module.exports = {
   createAssignment,
@@ -606,5 +573,5 @@ module.exports = {
   getAssignmentsBySubjectId,
   getAssignmentById,
   getAssignmentsByClassId,
-  getAssignmentsBySubjectAndClassId
+  getAssignmentsBySubjectAndClassId,
 };

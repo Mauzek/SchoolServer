@@ -9,6 +9,8 @@ const {
   getTestingAnswers,
   getTestingAnswerById,
   getAssignmentAnswerById,
+  getStudentAssignmentAnswer,
+  getStudentTestingAnswer,
 } = require("../controllers");
 const router = express.Router();
 
@@ -28,5 +30,10 @@ router.get("/testing/:idTesting", authenticate, getTestingAnswers);
 router.get("/assignment/answer/:idAnswer", authenticate, getAssignmentAnswerById);
 // Получение ответа на тестирование по ID
 router.get("/testing/answer/:idTestingAnswer", authenticate, getTestingAnswerById);
+// Получение ответов на задания студента
+router.get("/assignment/:idAssignment/student/:idStudent", authenticate, getStudentAssignmentAnswer);
+// Получение ответов на тестирование студента
+router.get("/testing/:idTesting/student/:idStudent", authenticate, getStudentTestingAnswer);
+
 
 module.exports = router;

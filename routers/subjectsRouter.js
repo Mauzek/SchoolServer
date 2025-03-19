@@ -5,11 +5,14 @@ const {
     updateSubjectById,
     deleteSubjectById,
     getAllSubjects,
+    getSubjectById,
 } = require("../controllers");
 const router = express.Router();
 
 // Получение всех предметов
 router.get("/all", authenticate, getAllSubjects);
+// Получение предмета по идентификатору
+router.get("/:idSubject", authenticate, getSubjectById);
 // Создание нового предмета
 router.post("/", authenticate, createSubject);
 // Обновление предмета по идентификатору

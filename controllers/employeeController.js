@@ -529,7 +529,7 @@ const getAllEmployees = async (req, res) => {
           attributes: ["login", "email", "first_name", "last_name", "middle_name", "gender", "photo"],
           include: [{
             model: Role,
-            attributes: ["name"],
+            attributes: ["id_role","name"],
           },],
         },
         {
@@ -555,7 +555,7 @@ const getAllEmployees = async (req, res) => {
         name: employee.Position.name,
       },
       role: {
-        idRole: employee.User.id_role,
+        id: employee.User.Role.id_role,
         name: employee.User.Role.name,
       },
       maritalStatus: employee.marital_status,

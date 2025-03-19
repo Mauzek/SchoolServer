@@ -584,6 +584,180 @@ const getTestingAnswerById = async (req, res) => {
   }
 };
 
+const getStudentAssignmentAnswer = async (req, res) => {
+  const { idAssignment, idStudent } = req.params;
+  try {
+    const answer = await AssignmentAnswer.findOne({
+      where: {
+        id_assignment: idAssignment,
+        id_student: idStudent
+      },
+      include: [
+        {
+          model: Assignment,
+          attributes: ["id_assignment", "title", "description", "file_link", "open_time", "close_time"],
+          include: {
+            model: Subject,
+            attributes: ["id_subject", "name"],
+          }
+        },
+        {
+          model: Student,
+          attributes: ["id_student"],
+          include: [
+            {
+              model: User,
+              attributes: ["id_user", "first_name", "last_name", "middle_name"],
+            },
+            {
+              model: Class,
+              attributes: ["id_class", "class_number", "class_letter"],
+            }
+          ],
+        },
+      ],
+    });
+
+    if (!answer) {
+      return res.status(404).json({ 
+        message: "No answer found for this student and assignment" 
+      });
+    }
+
+    const formattedAnswer = {
+      idAnswer: answer.id_answer,
+      assignment: {
+        idAssignment: answer.Assignment.id_assignment,
+        title: answer.Assignment.title,
+        description: answer.Assignment.description,
+        fileLink: answer.Assignment.file_link,
+        openTime: answer.Assignment.open_time,
+        closeTime: answer.Assignment.close_time,
+        subject: {
+          idSubject: answer.Assignment.Subject.id_subject,
+          name: answer.Assignment.Subject.name,
+        }
+      },
+      student: answer.Student ? {
+        idStudent: answer.Student.id_student,
+        class: answer.Student.Class ? {
+          idClass: answer.Student.Class.id_class,
+          classNumber: answer.Student.Class.class_number,
+          classLetter: answer.Student.Class.class_letter,
+        } : null,
+        idUser: answer.Student.User.id_user,
+        firstName: answer.Student.User.first_name,
+        lastName: answer.Student.User.last_name,
+        middleName: answer.Student.User.middle_name,
+      } : null,
+      grade: answer.grade,
+      submissionDate: answer.submission_date,
+      textAnswer: answer.text_answer,
+      fileLink: answer.file_link,
+    };
+
+    res.status(200).json({ 
+      message: "Student's assignment answer fetched successfully", 
+      data: formattedAnswer 
+    });
+  } catch (error) {
+    console.error("Error fetching student's assignment answer:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getStudentTestingAnswer = async (req, res) => {
+  const { idTesting, idStudent } = req.params;
+  try {
+    const answer = await TestingAnswer.findOne({
+      where: {
+        id_testing: idTesting,
+        id_student: idStudent
+      },
+      include: [
+        {
+          model: Testing,
+          as: 'Testing',
+          attributes: ["id_testing", "file_link", "attempts_count"],
+          include: {
+            model: Assignment,
+            attributes: ["id_assignment", "title", "description", "open_time", "close_time"],
+            include: {
+              model: Subject,
+              attributes: ["id_subject", "name"],
+            }
+          }
+        },
+        {
+          model: Student,
+          attributes: ["id_student"],
+          include: [
+            {
+              model: User,
+              attributes: ["id_user", "first_name", "last_name", "middle_name"],
+            },
+            {
+              model: Class,
+              attributes: ["id_class", "class_number", "class_letter"],
+            }
+          ],
+        },
+      ],
+    });
+
+    if (!answer) {
+      return res.status(404).json({ 
+        message: "No answer found for this student and testing" 
+      });
+    }
+
+    const formattedAnswer = {
+      idTestingAnswer: answer.id_testing_answer,
+      testing: {
+        idTesting: answer.Testing.id_testing,
+        fileLink: answer.Testing.file_link,
+        attemptsCount: answer.Testing.attempts_count,
+        assignment: {
+          idAssignment: answer.Testing.Assignment.id_assignment,
+          title: answer.Testing.Assignment.title,
+          description: answer.Testing.Assignment.description,
+          openTime: answer.Testing.Assignment.open_time,
+          closeTime: answer.Testing.Assignment.close_time,
+          subject: {
+            idSubject: answer.Testing.Assignment.Subject.id_subject,
+            name: answer.Testing.Assignment.Subject.name,
+          }
+        }
+      },
+      student: answer.Student ? {
+        idStudent: answer.Student.id_student,
+        class: answer.Student.Class ? {
+          idClass: answer.Student.Class.id_class,
+          classNumber: answer.Student.Class.class_number,
+          classLetter: answer.Student.Class.class_letter,
+        } : null,
+        idUser: answer.Student.User.id_user,
+        firstName: answer.Student.User.first_name,
+        lastName: answer.Student.User.last_name,
+        middleName: answer.Student.User.middle_name,
+      } : null,
+      grade: answer.grade,
+      submissionDate: answer.submission_date,
+      fileLink: answer.file_link,
+    };
+
+    res.status(200).json({ 
+      message: "Student's testing answer fetched successfully", 
+      data: formattedAnswer 
+    });
+  } catch (error) {
+    console.error("Error fetching student's testing answer:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
 module.exports = {
   createAssignmentAnswer,
   createTestingAnswer,
@@ -593,4 +767,6 @@ module.exports = {
   getTestingAnswers,
   getAssignmentAnswerById,
   getTestingAnswerById,
+  getStudentAssignmentAnswer,
+  getStudentTestingAnswer,
 };
