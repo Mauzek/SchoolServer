@@ -12,12 +12,13 @@ const {
   getStudentAssignmentAnswer,
   getStudentTestingAnswer,
 } = require("../controllers");
+const { upload } = require("../middlewares/fileUpload");
 const router = express.Router();
 
 // Создание ответа на задание
-router.post("/assignment", authenticate, createAssignmentAnswer);
+router.post("/assignment", upload.single("file"), createAssignmentAnswer);
 // Создание ответа на тестирование
-router.post("/testing", authenticate, createTestingAnswer);
+router.post("/testing", upload.single("file"), createTestingAnswer);
 // Обновление ответа на задание
 router.put("/assignment/answer/:idAnswer", authenticate, updateAssignmentAnswer);
 /// Обновление оценки ответа на тестирование

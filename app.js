@@ -5,14 +5,16 @@ const path = require('path');
 const fs = require('fs');
 const morgan = require("morgan");
 const apiRouter = require("./routers/apiRouter");
-const { sequelize,connectDB } = require("./database/db");
-const {corsMiddleware} = require("./middlewares");
+const { sequelize, connectDB } = require("./database/db");
+const { corsMiddleware } = require("./middlewares");
 
 const app = express();
 
 const uploadDir = path.join(__dirname, 'uploads');
 const userPhotosDir = path.join(uploadDir, 'userPhotos');
+const answersDir = path.join(uploadDir, 'answers'); // Директория для ответов
 
+// Создаём директории, если они не существуют
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
@@ -21,7 +23,24 @@ if (!fs.existsSync(userPhotosDir)) {
   fs.mkdirSync(userPhotosDir);
 }
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+if (!fs.existsSync(answersDir)) {
+  fs.mkdirSync(answersDir);
+}
+
+// Настраиваем статическую раздачу файлов
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, 'uploads'), {
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+      );
+    },
+  })
+);
 
 // Настройки middleware
 app.use(corsMiddleware);  // Используем CORS middleware
@@ -46,7 +65,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     error: message,
     ...(process.env.NODE_ENV === "development" && { stack: err.stack })  // Показывать стек ошибок в режиме разработки
-  })
+  });
 });
 
 // Запуск сервера
@@ -84,8 +103,5 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
-
-
 
 startServer();

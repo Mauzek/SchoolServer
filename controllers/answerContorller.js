@@ -1,15 +1,19 @@
 const { AssignmentAnswer, TestingAnswer, Assignment, Testing, Student, User, Class, Subject } = require("../models");
 
 const createAssignmentAnswer = async (req, res) => {
-  const { idAssignment, idStudent, grade, submissionDate, textAnswer, fileLink } = req.body;
+  const { idAssignment, idStudent, grade, submissionDate, textAnswer } = req.body;
+
   try {
+    // Сохраняем относительный путь в базе данных
+    const filePath = req.file ? `/uploads/answers/${req.file.filename}` : null;
+
     const answer = await AssignmentAnswer.create({
       id_assignment: idAssignment,
       id_student: idStudent,
       grade,
       submission_date: submissionDate,
       text_answer: textAnswer,
-      file_link: fileLink,
+      file_link: filePath, // Сохраняем путь
     });
 
     const createdAnswer = await AssignmentAnswer.findByPk(answer.id_answer, {
@@ -20,7 +24,7 @@ const createAssignmentAnswer = async (req, res) => {
           include: {
             model: Subject,
             attributes: ["id_subject", "name"],
-          }
+          },
         },
         {
           model: Student,
@@ -33,12 +37,13 @@ const createAssignmentAnswer = async (req, res) => {
             {
               model: Class,
               attributes: ["id_class", "class_number", "class_letter"],
-            }
+            },
           ],
         },
       ],
     });
 
+    // Формируем полный URL для ответа
     const formattedAnswer = {
       idAnswer: createdAnswer.id_answer,
       assignment: {
@@ -48,27 +53,36 @@ const createAssignmentAnswer = async (req, res) => {
         subject: {
           idSubject: createdAnswer.Assignment.Subject.id_subject,
           name: createdAnswer.Assignment.Subject.name,
-        }
+        },
       },
-      student: createdAnswer.Student ? {
-        idStudent: createdAnswer.Student.id_student,
-        class: createdAnswer.Student.Class ? {
-          idClass: createdAnswer.Student.Class.id_class,
-          classNumber: createdAnswer.Student.Class.class_number,
-          classLetter: createdAnswer.Student.Class.class_letter,
-        } : null,
-        idUser: createdAnswer.Student.User.id_user,
-        firstName: createdAnswer.Student.User.first_name,
-        lastName: createdAnswer.Student.User.last_name,
-        middleName: createdAnswer.Student.User.middle_name,
-      } : null,
+      student: createdAnswer.Student
+        ? {
+            idStudent: createdAnswer.Student.id_student,
+            class: createdAnswer.Student.Class
+              ? {
+                  idClass: createdAnswer.Student.Class.id_class,
+                  classNumber: createdAnswer.Student.Class.class_number,
+                  classLetter: createdAnswer.Student.Class.class_letter,
+                }
+              : null,
+            idUser: createdAnswer.Student.User.id_user,
+            firstName: createdAnswer.Student.User.first_name,
+            lastName: createdAnswer.Student.User.last_name,
+            middleName: createdAnswer.Student.User.middle_name,
+          }
+        : null,
       grade: createdAnswer.grade,
       submissionDate: createdAnswer.submission_date,
       textAnswer: createdAnswer.text_answer,
-      fileLink: createdAnswer.file_link,
+      fileLink: createdAnswer.file_link
+        ? `${req.protocol}://${req.get("host")}${createdAnswer.file_link}` // Формируем ссылку
+        : null,
     };
 
-    res.status(201).json({ message: "Assignment answer created successfully", data: formattedAnswer });
+    res.status(201).json({
+      message: "Assignment answer created successfully",
+      data: formattedAnswer,
+    });
   } catch (error) {
     console.error("Error creating assignment answer:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -76,21 +90,25 @@ const createAssignmentAnswer = async (req, res) => {
 };
 
 const createTestingAnswer = async (req, res) => {
-  const { idTesting, idStudent, grade, submissionDate, fileLink } = req.body;
+  const { idTesting, idStudent, grade, submissionDate } = req.body;
+
   try {
+    // Сохраняем относительный путь в базе данных
+    const filePath = req.file ? `/uploads/answers/${req.file.filename}` : null;
+
     const answer = await TestingAnswer.create({
       id_testing: idTesting,
       id_student: idStudent,
       grade,
       submission_date: submissionDate,
-      file_link: fileLink,
+      file_link: filePath, // Сохраняем путь
     });
 
     const createdAnswer = await TestingAnswer.findByPk(answer.id_testing_answer, {
       include: [
         {
           model: Testing,
-          as: 'Testing',
+          as: "Testing",
           attributes: ["id_testing"],
           include: {
             model: Assignment,
@@ -98,8 +116,8 @@ const createTestingAnswer = async (req, res) => {
             include: {
               model: Subject,
               attributes: ["id_subject", "name"],
-            }
-          }
+            },
+          },
         },
         {
           model: Student,
@@ -112,41 +130,51 @@ const createTestingAnswer = async (req, res) => {
             {
               model: Class,
               attributes: ["id_class", "class_number", "class_letter"],
-            }
+            },
           ],
         },
       ],
     });
 
+    // Формируем полный URL для ответа
     const formattedAnswer = {
       idTestingAnswer: createdAnswer.id_testing_answer,
       testing: {
         idTesting: createdAnswer.Testing.id_testing,
-        title:  createdAnswer.Testing.Assignment.title,
+        title: createdAnswer.Testing.Assignment.title,
         description: createdAnswer.Testing.Assignment.description,
         subject: {
           idSubject: createdAnswer.Testing.Assignment.Subject.id_subject,
           name: createdAnswer.Testing.Assignment.Subject.name,
-        }
+        },
       },
-      student: createdAnswer.Student ? {
-        idStudent: createdAnswer.Student.id_student,
-        class: createdAnswer.Student.Class ? {
-          idClass: createdAnswer.Student.Class.id_class,
-          classNumber: createdAnswer.Student.Class.class_number,
-          classLetter: createdAnswer.Student.Class.class_letter,
-        } : null,
-        idUser: createdAnswer.Student.User.id_user,
-        firstName: createdAnswer.Student.User.first_name,
-        lastName: createdAnswer.Student.User.last_name,
-        middleName: createdAnswer.Student.User.middle_name,
-      } : null,
+      student: createdAnswer.Student
+        ? {
+            idStudent: createdAnswer.Student.id_student,
+            class: createdAnswer.Student.Class
+              ? {
+                  idClass: createdAnswer.Student.Class.id_class,
+                  classNumber: createdAnswer.Student.Class.class_number,
+                  classLetter: createdAnswer.Student.Class.class_letter,
+                }
+              : null,
+            idUser: createdAnswer.Student.User.id_user,
+            firstName: createdAnswer.Student.User.first_name,
+            lastName: createdAnswer.Student.User.last_name,
+            middleName: createdAnswer.Student.User.middle_name,
+          }
+        : null,
       grade: createdAnswer.grade,
       submissionDate: createdAnswer.submission_date,
-      fileLink: createdAnswer.file_link,
+      fileLink: createdAnswer.file_link
+        ? `${req.protocol}://${req.get("host")}${createdAnswer.file_link}` // Формируем ссылку
+        : null,
     };
 
-    res.status(201).json({ message: "Testing answer created successfully", data: formattedAnswer });
+    res.status(201).json({
+      message: "Testing answer created successfully",
+      data: formattedAnswer,
+    });
   } catch (error) {
     console.error("Error creating testing answer:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -155,15 +183,13 @@ const createTestingAnswer = async (req, res) => {
 
 const updateAssignmentAnswer = async (req, res) => {
   const { idAnswer } = req.params;
-  const { grade, textAnswer, fileLink } = req.body;
+  const { grade } = req.body;
   try {
     const answer = await AssignmentAnswer.findByPk(idAnswer);
     if (!answer) {
       return res.status(404).json({ message: "Assignment answer not found" });
     }
     answer.grade = grade;
-    answer.text_answer = textAnswer;
-    answer.file_link = fileLink;
     await answer.save();
 
     const updatedAnswer = await AssignmentAnswer.findByPk(answer.id_answer, {
@@ -357,7 +383,7 @@ const getAssignmentAnswers = async (req, res) => {
       grade: answer.grade,
       submissionDate: answer.submission_date,
       textAnswer: answer.text_answer,
-      fileLink: answer.file_link,
+      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
     }));
 
     res.status(200).json({ message: "Assignment answers fetched successfully", data: formattedAnswers });
@@ -428,7 +454,7 @@ const getTestingAnswers = async (req, res) => {
       } : null,
       grade: answer.grade,
       submissionDate: answer.submission_date,
-      fileLink: answer.file_link,
+      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
     }));
 
     res.status(200).json({ message: "Testing answers fetched successfully", data: formattedAnswers });
@@ -498,7 +524,7 @@ const getAssignmentAnswerById = async (req, res) => {
       grade: answer.grade,
       submissionDate: answer.submission_date,
       textAnswer: answer.text_answer,
-      fileLink: answer.file_link,
+      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
     };
 
     res.status(200).json({ message: "Assignment answer fetched successfully", data: formattedAnswer });
@@ -619,9 +645,7 @@ const getStudentAssignmentAnswer = async (req, res) => {
     });
 
     if (!answer) {
-      return res.status(404).json({ 
-        message: "No answer found for this student and assignment" 
-      });
+      return res.status(200).json();
     }
 
     const formattedAnswer = {
@@ -653,7 +677,7 @@ const getStudentAssignmentAnswer = async (req, res) => {
       grade: answer.grade,
       submissionDate: answer.submission_date,
       textAnswer: answer.text_answer,
-      fileLink: answer.file_link,
+      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
     };
 
     res.status(200).json({ 
@@ -706,9 +730,7 @@ const getStudentTestingAnswer = async (req, res) => {
     });
 
     if (!answer) {
-      return res.status(404).json({ 
-        message: "No answer found for this student and testing" 
-      });
+      return res.status(200).json();
     }
 
     const formattedAnswer = {
@@ -743,7 +765,7 @@ const getStudentTestingAnswer = async (req, res) => {
       } : null,
       grade: answer.grade,
       submissionDate: answer.submission_date,
-      fileLink: answer.file_link,
+      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
     };
 
     res.status(200).json({ 

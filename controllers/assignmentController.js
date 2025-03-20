@@ -352,7 +352,7 @@ const getAssignmentById = async (req, res) => {
       include: [
         {
           model: Subject,
-          attributes: ["id_subject", "name"],
+          attributes: ["id_subject", "name", "description"],
         },
         {
           model: Class,
@@ -383,7 +383,8 @@ const getAssignmentById = async (req, res) => {
       idAssignment: assignment.id_assignment,
       subject: {
         idSubject: assignment.Subject.id_subject,
-        subjectName: assignment.Subject.name,
+        name: assignment.Subject.name,
+        description: assignment.Subject.description,
       },
       class: {
         idClass: assignment.Class.id_class,
