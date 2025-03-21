@@ -430,7 +430,7 @@ const getTestingAnswers = async (req, res) => {
     });
 
     const formattedAnswers = answers.map(answer => ({
-      idTestingAnswer: answer.id_testing_answer,
+      idAnswer: answer.id_testing_answer,
       testing: {
         idTesting: answer.Testing.id_testing,
         title: answer.Testing.Assignment.title,
@@ -576,7 +576,7 @@ const getTestingAnswerById = async (req, res) => {
     }
 
     const formattedAnswer = {
-      idTestingAnswer: answer.id_testing_answer,
+      idAnswer: answer.id_testing_answer,
       testing: {
         idTesting: answer.Testing.id_testing,
         title: answer.Testing.Assignment.title,

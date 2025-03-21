@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticate } = require("../middlewares");
+const { authenticate, upload, uploadAssignment  } = require("../middlewares");
 const {
     createAssignment,
     updateAssignmentById,
@@ -12,7 +12,10 @@ const {
 const router = express.Router();
 
 // Создание нового задания
-router.post("/", authenticate, createAssignment);
+router.post("/", authenticate, upload.fields([
+    { name: 'assignmentFile', maxCount: 1 },
+    { name: 'testingFile', maxCount: 1 }
+  ]), createAssignment);
 // Обновление задания по ID
 router.put("/:idAssignment", authenticate, updateAssignmentById);
 // Удаление задания по ID

@@ -14,33 +14,45 @@ const createAssignment = async (req, res) => {
     idEmployee,
     title,
     description,
-    fileLink,
     openTime,
     closeTime,
     isTesting,
-    testingFileLink,
     attemptsCount,
   } = req.body;
+  
   try {
+    // Получаем путь к файлу задания из middleware multer
+    const assignmentFilePath = req.files && req.files.assignmentFile ? 
+      `/uploads/assignmentsFiles/${req.files.assignmentFile[0].filename}` : null;
+
+    // Создаем задание
     const assignment = await Assignment.create({
       id_subject: idSubject,
       id_class: idClass,
       id_employee: idEmployee,
       title,
       description,
-      file_link: fileLink,
+      file_link: assignmentFilePath,
       open_time: openTime,
       close_time: closeTime,
     });
 
-    if (isTesting) {
+    // Если это тестовое задание
+    if (isTesting === 'true' || isTesting === true) {
+      // Получаем путь к файлу тестирования
+      const testingFilePath = req.files && req.files.testingFile ? 
+        `/uploads/testingFiles/${req.files.testingFile[0].filename}` : '';
+      
+      // Если файл тестирования не был загружен, но задание отмечено как тестовое,
+      // используем пустую строку вместо null
       await Testing.create({
         id_assignment: assignment.id_assignment,
-        file_link: testingFileLink,
-        attempts_count: attemptsCount,
+        file_link: testingFilePath, // Используем пустую строку вместо null
+        attempts_count: attemptsCount || 1, // Устанавливаем значение по умолчанию, если не указано
       });
     }
 
+    // Остальной код остается без изменений...
     const createdAssignment = await Assignment.findByPk(
       assignment.id_assignment,
       {
@@ -76,6 +88,7 @@ const createAssignment = async (req, res) => {
       }
     );
 
+    // Форматирование ответа...
     const formattedAssignment = {
       idAssignment: createdAssignment.id_assignment,
       subject: {
@@ -104,13 +117,17 @@ const createAssignment = async (req, res) => {
         : null,
       title: createdAssignment.title,
       description: createdAssignment.description,
-      fileLink: createdAssignment.file_link,
+      fileLink: createdAssignment.file_link
+        ? `${req.protocol}://${req.get("host")}${createdAssignment.file_link}` // Формируем полный URL
+        : null,
       openTime: createdAssignment.open_time,
       closeTime: createdAssignment.close_time,
       testing: createdAssignment.Testing
         ? {
             idTesting: createdAssignment.Testing.id_testing,
-            fileLink: createdAssignment.Testing.file_link,
+            fileLink: createdAssignment.Testing.file_link
+              ? `${req.protocol}://${req.get("host")}${createdAssignment.Testing.file_link}` // Формируем полный URL
+              : null,
             attemptsCount: createdAssignment.Testing.attempts_count,
           }
         : null,
@@ -125,6 +142,7 @@ const createAssignment = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 const deleteAssignmentById = async (req, res) => {
   const { idAssignment } = req.params;
