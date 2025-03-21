@@ -177,21 +177,35 @@ const getTextbooksByName = async (req, res) => {
   }
 };
 
+
 const createTextbook = async (req, res) => {
   const transaction = await sequelize.transaction();
-  const { idSubject, name, year, authors, isbn, fileLink } = req.body;
+  const { idSubject, name, year, authors, isbn } = req.body;
+
   try {
     if (!idSubject || !name || !year || !authors) {
       return res
         .status(400)
-        .json({ message: "All required fields must be filled" });
+        .json({ message: "Все обязательные поля должны быть заполнены" });
     }
 
+    const fileLink = req.file ? `/uploads/Textbooks/${req.file.filename}` : null;
+
     const textbook = await SubjectTextbook.create(
-      { id_subject: idSubject, name, year, authors, isbn, file_link: fileLink },
+      { 
+        id_subject: idSubject, 
+        name, 
+        year, 
+        authors, 
+        isbn, 
+        file_link: fileLink 
+      },
       { transaction }
     );
+    
     await transaction.commit();
+
+    const subject = await Subject.findByPk(idSubject);
 
     const formattedTextbook = {
       idSubjectTextbook: textbook.id_subject_textbook,
@@ -199,24 +213,27 @@ const createTextbook = async (req, res) => {
       year: textbook.year,
       authors: textbook.authors,
       isbn: textbook.isbn,
-      fileLink: textbook.file_link,
+      fileLink: fileLink 
+        ? `${req.protocol}://${req.get("host")}${fileLink}` 
+        : null,
       subject: {
         idSubject: idSubject,
-        name: (await Subject.findByPk(idSubject)).name,
+        name: subject ? subject.name : null,
       },
     };
+
     res
       .status(201)
       .json({
-        message: "Textbook created successfully",
+        message: "Учебник успешно создан",
         textbook: formattedTextbook,
       });
   } catch (error) {
-    if (!transaction.finished) {
+    if (transaction && !transaction.finished) {
       await transaction.rollback();
     }
-    console.error("Error creating textbook:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Ошибка при создании учебника:", error);
+    res.status(500).json({ message: "Ошибка сервера", error: error.message });
   }
 };
 

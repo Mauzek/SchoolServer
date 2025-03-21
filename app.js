@@ -14,6 +14,7 @@ const uploadDir = path.join(__dirname, 'uploads');
 const userPhotosDir = path.join(uploadDir, 'userPhotos');
 const assignmentsFilesDir = path.join(uploadDir, 'assignmentsFiles'); // Директория для файлов заданий
 const testingFilesDir = path.join(uploadDir, 'testingFiles'); // Директория для файлов заданий
+const textbooksFilesDir = path.join(uploadDir, 'Textbooks'); // Директория для файлов тестирования
 const answersDir = path.join(uploadDir, 'answers'); // Директория для ответов
 
 // Создаём директории, если они не существуют
@@ -28,8 +29,13 @@ if (!fs.existsSync(userPhotosDir)) {
 if (!fs.existsSync(assignmentsFilesDir)) {
   fs.mkdirSync(assignmentsFilesDir);
 }
+
 if (!fs.existsSync(testingFilesDir)) {
   fs.mkdirSync(testingFilesDir);
+}
+
+if (!fs.existsSync(textbooksFilesDir)) {
+  fs.mkdirSync(textbooksFilesDir);
 }
 
 if (!fs.existsSync(answersDir)) {

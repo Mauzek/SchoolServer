@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticate } = require("../middlewares");
+const { authenticate, upload } = require("../middlewares");
 const {
     createTextbook,
     updateTextbookById,
@@ -23,7 +23,7 @@ router.get("/subject/:idSubject", authenticate, getTextbooksBySubject);
 // Получить учебные пособия по ISBN
 router.get("/isbn/:isbn", authenticate, getTextbooksByISBN);
 // Создать новое учебное пособие
-router.post("/", authenticate, createTextbook);
+router.post("/", authenticate, upload.single('textbookFile'), createTextbook);
 // Обновить учебное пособие по ID
 router.put("/:idTextbook", authenticate, updateTextbookById);
 // Удалить учебное пособие по ID

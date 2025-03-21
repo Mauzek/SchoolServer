@@ -8,6 +8,7 @@ const uploadDir = path.join(__dirname, "../uploads");
 const userPhotosDir = path.join(uploadDir, "userPhotos");
 const assignmentsFilesDir = path.join(uploadDir, 'assignmentsFiles'); // Директория для файлов заданий
 const testingFilesDir = path.join(uploadDir, 'testingFiles'); // Директория для файлов тестирования
+const textbooksFilesDir = path.join(uploadDir, 'Textbooks'); // Директория для файлов тестирования
 const answersDir = path.join(uploadDir, "answers"); // Директория для ответов студентов
 
 if (!fs.existsSync(uploadDir)) {
@@ -26,6 +27,10 @@ if (!fs.existsSync(testingFilesDir)) {
   fs.mkdirSync(testingFilesDir);
 }
 
+if (!fs.existsSync(textbooksFilesDir)) {
+  fs.mkdirSync(textbooksFilesDir);
+}
+
 if (!fs.existsSync(answersDir)) {
   fs.mkdirSync(answersDir);
 }
@@ -40,7 +45,9 @@ const storage = multer.diskStorage({
       cb(null, testingFilesDir);
     } else if (file.fieldname === 'file') {
       cb(null, answersDir); // Для ответов студентов
-    } else {
+    } else if(file.fieldname === 'textbookFile') {
+      cb(null, textbooksFilesDir); // Для учебников
+    }else {
       cb(null, userPhotosDir); // По умолчанию для фото пользователей
     }
   },
@@ -87,7 +94,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 25 * 1024 * 1024, // Увеличено до 25МБ
+    fileSize: 50 * 1024 * 1024, // Увеличено до 25МБ
   },
   fileFilter: fileFilter,
 });
