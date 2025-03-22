@@ -61,20 +61,19 @@ const getGradesByClassAndSubject = async (req, res) => {
 
       return {
         student: {
-          id_student: student.id_student,
+          idStudent: student.id_student,
           firstName: student.User.first_name,
           lastName: student.User.last_name,
           middleName: student.User.middle_name,
         },
         grades: studentGrades.map(grade => ({
-          id_grade: grade.id_grade,
-          id_student: grade.id_student,
-          id_subject: grade.id_subject,
-          grade_value: grade.grade_value,
-          grade_date: grade.grade_date,
-          grade_type: grade.grade_type,
+          idGrade: grade.id_grade,
+          idStudent: grade.id_student,
+          grade: grade.grade_value,
+          gradeDate: grade.grade_date,
+          gradeType: grade.grade_type,
           description: grade.description,
-          subject: grade.Subject ? { name: grade.Subject.name } : null,
+          subject: grade.Subject ? { idSubject: grade.id_subject, name: grade.Subject.name } : null,
         })),
       };
     }));
@@ -112,20 +111,19 @@ const getGradesByStudent = async (req, res) => {
 
     const grades = {
       student: {
-        id_student: student.id_student,
+        idStudent: student.id_student,
         firstName: student.User.first_name,
         lastName: student.User.last_name,
         middleName: student.User.middle_name,
       },
       grades: studentGrades.map(grade => ({
-        id_grade: grade.id_grade,
-        id_student: grade.id_student,
-        id_subject: grade.id_subject,
-        grade_value: grade.grade_value,
-        grade_date: grade.grade_date,
-        grade_type: grade.grade_type,
+        idGrade: grade.id_grade,
+        idStudent: grade.id_student,      
+        grade: grade.grade_value,
+        gradeDate: grade.grade_date,
+        gradeType: grade.grade_type,
         description: grade.description,
-        subject: grade.Subject ? { name: grade.Subject.name } : null,
+        subject: grade.Subject ? { idSubject: grade.id_subject, name: grade.Subject.name } : null,
       })),
     };
 
