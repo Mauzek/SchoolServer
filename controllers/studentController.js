@@ -1,7 +1,7 @@
 const { User, Student, Role, Class, Parent, StudentParent, Grade, sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
-const { sendEmail } = require("../utils/email");
+const { sendEmail, generateRegistrationEmail } = require("../utils/email");
 
 const createStudent = async (req, res) => {
   const transaction = await sequelize.transaction(); // Открываем транзакцию
@@ -119,7 +119,14 @@ const createStudent = async (req, res) => {
 
     // Отправка письма с логином и паролем
     const emailText = `Здравствуйте, ${firstName} ${lastName}!\n\nВаши данные для входа в систему:\nЛогин: ${login}\nПароль: ${password}\n\nС уважением,\nАдминистрация школы`;
-    sendEmail(email, 'Регистрация в системе', emailText);
+    const fullName = `${firstName} ${lastName}`;
+    const htmlEmail = generateRegistrationEmail(
+      fullName, 
+      login, 
+      password,
+      'http://localhost:5173'
+    );
+    sendEmail(email, 'Добро пожаловать в нашу школу!', emailText, htmlEmail);
 
     // Фиксируем изменения в базе
     await transaction.commit();

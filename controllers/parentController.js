@@ -170,7 +170,14 @@ const createParent = async (req, res) => {
 
     // Отправка письма с логином и паролем
     const emailText = `Здравствуйте, ${firstName} ${lastName}!\n\nВаши данные для входа в систему:\nЛогин: ${login}\nПароль: ${password}\n\nС уважением,\nАдминистрация школы`;
-    sendEmail(email, 'Регистрация в системе', emailText);
+    const fullName = `${firstName} ${lastName}`;
+    const htmlEmail = generateRegistrationEmail(
+      fullName, 
+      login, 
+      password,
+      'http://localhost:5173'
+    );
+    sendEmail(email, 'Добро пожаловать в нашу школу!', emailText, htmlEmail);
 
     // Фиксируем изменения в базе
     await transaction.commit();
