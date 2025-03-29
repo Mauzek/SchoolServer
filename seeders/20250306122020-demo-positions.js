@@ -5,11 +5,11 @@ module.exports = {
     await queryInterface.bulkInsert('positions', [
       {
         name: 'Teacher', // Название должности
-        description: 'Responsible for teaching students and preparing lesson plans.', // Описание
+        description: 'Отвечает за обучение студентов и подготовку планов уроков.', // Описание
       },
       {
         name: 'Administrator',
-        description: 'Manages the school and oversees all operations.',
+        description: 'Управляет школой и контролирует все операции.',
       },
     ]);
   },

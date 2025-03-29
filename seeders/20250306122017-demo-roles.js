@@ -4,16 +4,16 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('roles', [
       {
-        name: 'Admin', // Роль администратора
+        name: 'Админ', // Роль администратора
       },
       {
-        name: 'Teacher', // Роль преподавателя
+        name: 'Учитель', // Роль преподавателя
       },
       {
-        name: 'Student', // Роль студента
+        name: 'Ученик', // Роль студента
       },
       {
-        name: 'Parent', // Роль родителя
+        name: 'Родитель', // Роль родителя
       },
     ]);
   },
@@ -22,3 +22,4 @@ module.exports = {
     await queryInterface.bulkDelete('roles', null, {});
   },
 };
+

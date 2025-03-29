@@ -4,32 +4,32 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('subjects', [
       {
-        name: 'Mathematics', // Название предмета
-        description: 'The study of numbers, quantities, and shapes.', // Описание
+        name: 'Математика', // Название предмета
+        description: 'Изучение чисел, величин и форм.', // Описание
       },
       {
-        name: 'History',
-        description: 'The study of past events and human civilization.',
+        name: 'История',
+        description: 'Изучение прошлых событий и человеческой цивилизации.',
       },
       {
-        name: 'Physics',
-        description: 'The study of matter, energy, and the interactions between them.',
+        name: 'Физика',
+        description: 'Изучение материи, энергии и взаимодействий между ними.',
       },
       {
-        name: 'Chemistry',
-        description: 'The study of substances, their properties, and reactions.',
+        name: 'Химия',
+        description: 'Изучение веществ, их свойств и реакций.',
       },
       {
-        name: 'Biology',
-        description: 'The study of living organisms and life processes.',
+        name: 'Биология',
+        description: 'Изучение живых организмов и жизненных процессов.',
       },
       {
-        name: 'Literature',
-        description: 'The study of written works, especially fiction and poetry.',
+        name: 'Литература',
+        description: 'Изучение письменных произведений, особенно художественной литературы и поэзии.',
       },
       {
-        name: 'Geography',
-        description: 'The study of Earth\'s landscapes, environments, and populations.',
+        name: 'География',
+        description: 'Изучение ландшафтов Земли, окружающей среды и населения.',
       },
     ]);
   },
