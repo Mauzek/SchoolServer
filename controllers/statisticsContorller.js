@@ -141,7 +141,7 @@ const getAverageGradesByStudent = async (req, res) => {
       const grades = student.Grades.map((grade) => grade.grade_value);
       const averageGrade =
         grades.reduce((sum, grade) => sum + grade, 0) / grades.length || 0;
-
+      console.log(student.Class.ClassTeacher.id_employee)
       return {
         idStudent: student.id_student,
         firstName: student.User.first_name,
