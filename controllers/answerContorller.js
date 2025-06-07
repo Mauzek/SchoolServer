@@ -454,7 +454,7 @@ const getTestingAnswers = async (req, res) => {
       } : null,
       grade: answer.grade,
       submissionDate: answer.submission_date,
-      fileLink: `${req.protocol}://${req.get("host")}${answer.file_link}`,
+      fileLink: `${req.protocol}s://${req.get("host")}${answer.file_link}`,
     }));
 
     res.status(200).json({ message: "Testing answers fetched successfully", data: formattedAnswers });
